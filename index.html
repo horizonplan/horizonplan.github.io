@@ -136,10 +136,19 @@ header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
 .pc.last{border-top-right-radius:7px;border-bottom-right-radius:7px}
 .seg .txt{position:absolute;top:0;bottom:0;display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;pointer-events:none;color:var(--fg)}
 .seg .txt b{font-weight:600;font-size:12.5px;overflow:hidden;text-overflow:ellipsis;unicode-bidi:plaintext}
+.seg .txt i.dur{font-style:normal;font-size:11px;font-weight:600;padding:1px 6px;border-radius:8px;white-space:nowrap;background:color-mix(in srgb,var(--c) 24%,transparent);color:color-mix(in srgb,var(--c) 55%,var(--fg))}
+.above small{font-size:11px;font-weight:500;color:var(--muted)}
 .seg .txt em{font-style:normal;font-family:var(--font-mono);font-size:11px;color:var(--muted)}
-.above{position:absolute;top:4px;height:16px;line-height:16px;font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+.above{position:absolute;top:3px;height:18px;line-height:18px;font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   color:color-mix(in srgb,var(--c) 70%,var(--fg));cursor:grab;padding-right:2px;unicode-bidi:plaintext}
-.above::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--c);margin-right:5px;vertical-align:1px}
+.above{display:flex;align-items:center;gap:5px}
+.above>span{overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ck{width:15px;height:15px;border-radius:50%;border:1.5px solid var(--c);background:var(--surface);box-sizing:border-box;flex:none;pointer-events:auto;cursor:pointer;display:inline-grid;place-items:center}
+.ck:hover{background:color-mix(in srgb,var(--c) 22%,var(--surface))}
+.ck.on{background:var(--c)}
+.ck.on::after{content:"";width:3.5px;height:7px;border:solid var(--surface);border-width:0 1.8px 1.8px 0;transform:translate(0,-1px) rotate(45deg)}
+.seg.done,.above.done{opacity:.6}
+.seg.done:hover{opacity:.85}
 .h{position:absolute;top:-3px;bottom:-3px;width:12px;cursor:ew-resize;z-index:2}
 .h-l{left:-5px}.h-r{right:-5px}
 .h-m{width:14px;margin-left:-7px;cursor:col-resize}
@@ -154,6 +163,7 @@ header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
   border:1px solid color-mix(in srgb,var(--c) 45%,var(--line));background:var(--surface);color:var(--fg);font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;z-index:4;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .edge span{overflow:hidden;text-overflow:ellipsis;unicode-bidi:plaintext}
 .edge i{font-style:normal;color:var(--c);font-weight:700}
+.edge b{font-weight:600;color:var(--muted);font-size:11px}
 .edge.el{left:6px}.edge.er{right:6px}
 .edge:hover{border-color:var(--c)}
 .empty{position:absolute;left:0;right:0;top:36px;text-align:center;color:var(--muted);pointer-events:none;padding:0 16px}
@@ -274,6 +284,8 @@ header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
 const I18N = {
 en: {
   signIn:"Sign in", signInGoogle:"Sign in with Google", signInEmail:"Sign in with email", signInWhy:"So your plans are never lost and appear on all your devices", emailLabel:"Your email", emailSend:"Send link", emailSent:e=>`We sent a sign-in link to ${e}. Open it on this device.`, emailConfirm:"Confirm the email the link was sent to", signedInAs:e=>`Signed in as ${e}`, signOut:"Sign out", signInFailed:"Couldn’t sign in. Please try again.", tMerged:"Plans from this device were added as separate tabs", stDevice:"This device only", stDeviceTitle:"Sign in so you don’t lose your plans", consentText:"Allow anonymous visit statistics?", consentYes:"Yes", consentNo:"No", acctAria:"Account",
+  dur:{y:n=>`${n} yr`, m:n=>`${n} mo`, w:n=>`${n} wk`, d:n=>`${n} d`, join:' '}, signInFacebook:"Sign in with Facebook", signInApple:"Sign in with Apple", signInOtherMethod:"This email is already used with another sign-in method. Please use that one.",
+  mDone:"Mark as done", mUndone:"Mark as not done",
   name:'English', appName:'Horizon', tabsAria:'Scenarios', newOrCopy:'New or copy', addTask:'+ Task',
   z:['3 mo','6 mo','1 yr','2 yrs','5 yrs'], today:'Today', todayPill:'today',
   stSaving:'Saving…', stSaved:'Saved', stLocal:'This browser only',
@@ -317,6 +329,8 @@ en: {
 },
 uk: {
   signIn:"Увійти", signInGoogle:"Увійти через Google", signInEmail:"Увійти через пошту", signInWhy:"Щоб плани не загубилися і були на всіх ваших пристроях", emailLabel:"Ваша пошта", emailSend:"Надіслати посилання", emailSent:e=>`Посилання для входу надіслано на ${e}. Відкрийте його на цьому пристрої.`, emailConfirm:"Підтвердьте пошту, на яку прийшло посилання", signedInAs:e=>`Ви ввійшли як ${e}`, signOut:"Вийти", signInFailed:"Не вдалося ввійти. Спробуйте ще раз.", tMerged:"Плани з цього пристрою додано окремими вкладками", stDevice:"Лише на цьому пристрої", stDeviceTitle:"Увійдіть, щоб не втратити свої плани", consentText:"Дозволити анонімну статистику відвідувань?", consentYes:"Так", consentNo:"Ні", acctAria:"Акаунт",
+  dur:{y:n=>`${n} р`, m:n=>`${n} міс`, w:n=>`${n} тиж`, d:n=>`${n} дн`, join:' '}, signInFacebook:"Увійти через Facebook", signInApple:"Увійти через Apple", signInOtherMethod:"Ця пошта вже прив’язана до іншого способу входу. Увійдіть ним.",
+  mDone:"Позначити виконаною", mUndone:"Зняти позначку «виконано»",
   name:'Українська', appName:'Обрій', tabsAria:'Сценарії', newOrCopy:'Новий або копія', addTask:'+ Задача',
   z:['3 міс','6 міс','1 рік','2 роки','5 років'], today:'Сьогодні', todayPill:'сьогодні',
   stSaving:'Зберігаю…', stSaved:'Збережено', stLocal:'Лише в цьому браузері',
@@ -360,6 +374,8 @@ uk: {
 },
 es: {
   signIn:"Iniciar sesión", signInGoogle:"Iniciar sesión con Google", signInEmail:"Iniciar sesión con correo", signInWhy:"Para que tus planes no se pierdan y estén en todos tus dispositivos", emailLabel:"Tu correo", emailSend:"Enviar enlace", emailSent:e=>`Enviamos un enlace de acceso a ${e}. Ábrelo en este dispositivo.`, emailConfirm:"Confirma el correo al que llegó el enlace", signedInAs:e=>`Sesión iniciada como ${e}`, signOut:"Cerrar sesión", signInFailed:"No se pudo iniciar sesión. Inténtalo de nuevo.", tMerged:"Los planes de este dispositivo se añadieron como pestañas aparte", stDevice:"Solo en este dispositivo", stDeviceTitle:"Inicia sesión para no perder tus planes", consentText:"¿Permitir estadísticas anónimas de visitas?", consentYes:"Sí", consentNo:"No", acctAria:"Cuenta",
+  dur:{y:n=>`${n} ${n==='1'?'año':'años'}`, m:n=>`${n} ${n==='1'?'mes':'meses'}`, w:n=>`${n} sem`, d:n=>`${n} d`, join:' '}, signInFacebook:"Iniciar sesión con Facebook", signInApple:"Iniciar sesión con Apple", signInOtherMethod:"Este correo ya se usa con otro método de acceso. Entra con ese.",
+  mDone:"Marcar como hecha", mUndone:"Desmarcar como hecha",
   name:'Español', appName:'Horizonte', tabsAria:'Escenarios', newOrCopy:'Nuevo o copia', addTask:'+ Tarea',
   z:['3 m','6 m','1 año','2 años','5 años'], today:'Hoy', todayPill:'hoy',
   stSaving:'Guardando…', stSaved:'Guardado', stLocal:'Solo en este navegador',
@@ -403,6 +419,8 @@ es: {
 },
 zh: {
   signIn:"登录", signInGoogle:"使用 Google 登录", signInEmail:"使用邮箱登录", signInWhy:"这样你的计划不会丢失，并能在所有设备上看到", emailLabel:"你的邮箱", emailSend:"发送链接", emailSent:e=>`登录链接已发送到 ${e}。请在此设备上打开。`, emailConfirm:"请确认收到链接的邮箱", signedInAs:e=>`已登录：${e}`, signOut:"退出登录", signInFailed:"登录失败，请重试。", tMerged:"此设备上的计划已作为单独的标签页添加", stDevice:"仅存于此设备", stDeviceTitle:"登录以免丢失你的计划", consentText:"允许匿名访问统计吗？", consentYes:"允许", consentNo:"不允许", acctAria:"账户",
+  dur:{y:n=>`${n}年`, m:n=>`${n}个月`, w:n=>`${n}周`, d:n=>`${n}天`, join:''}, signInFacebook:"使用 Facebook 登录", signInApple:"使用 Apple 登录", signInOtherMethod:"此邮箱已绑定其他登录方式，请使用该方式登录。",
+  mDone:"标记为已完成", mUndone:"取消已完成",
   name:'中文', appName:'地平线', tabsAria:'方案', newOrCopy:'新建或复制', addTask:'+ 任务',
   z:['3个月','6个月','1年','2年','5年'], today:'今天', todayPill:'今天',
   stSaving:'正在保存…', stSaved:'已保存', stLocal:'仅存于此浏览器',
@@ -446,6 +464,8 @@ zh: {
 },
 ko: {
   signIn:"로그인", signInGoogle:"Google로 로그인", signInEmail:"이메일로 로그인", signInWhy:"계획을 잃지 않고 모든 기기에서 볼 수 있도록", emailLabel:"이메일 주소", emailSend:"링크 보내기", emailSent:e=>`${e}(으)로 로그인 링크를 보냈습니다. 이 기기에서 여세요.`, emailConfirm:"링크를 받은 이메일 주소를 확인하세요", signedInAs:e=>`${e}(으)로 로그인됨`, signOut:"로그아웃", signInFailed:"로그인하지 못했습니다. 다시 시도하세요.", tMerged:"이 기기의 계획을 별도 탭으로 추가했습니다", stDevice:"이 기기에만", stDeviceTitle:"계획을 잃지 않으려면 로그인하세요", consentText:"익명 방문 통계를 허용할까요?", consentYes:"예", consentNo:"아니요", acctAria:"계정",
+  dur:{y:n=>`${n}년`, m:n=>`${n}개월`, w:n=>`${n}주`, d:n=>`${n}일`, join:' '}, signInFacebook:"Facebook으로 로그인", signInApple:"Apple로 로그인", signInOtherMethod:"이 이메일은 다른 로그인 방법에 이미 연결되어 있습니다. 그 방법으로 로그인하세요.",
+  mDone:"완료로 표시", mUndone:"완료 표시 해제",
   name:'한국어', appName:'지평선', tabsAria:'시나리오', newOrCopy:'새로 만들기 또는 복사', addTask:'+ 할 일',
   z:['3개월','6개월','1년','2년','5년'], today:'오늘', todayPill:'오늘',
   stSaving:'저장 중…', stSaved:'저장됨', stLocal:'이 브라우저에만',
@@ -489,6 +509,8 @@ ko: {
 },
 fa: {
   signIn:"ورود", signInGoogle:"ورود با Google", signInEmail:"ورود با ایمیل", signInWhy:"تا برنامه‌هایتان گم نشود و در همهٔ دستگاه‌هایتان باشد", emailLabel:"ایمیل شما", emailSend:"ارسال پیوند", emailSent:e=>`پیوند ورود به ${e} فرستاده شد. آن را در همین دستگاه باز کنید.`, emailConfirm:"ایمیلی را که پیوند به آن رسیده تأیید کنید", signedInAs:e=>`وارد شده با ${e}`, signOut:"خروج", signInFailed:"ورود ممکن نشد. دوباره تلاش کنید.", tMerged:"برنامه‌های این دستگاه به‌صورت زبانه‌های جداگانه اضافه شد", stDevice:"فقط در این دستگاه", stDeviceTitle:"وارد شوید تا برنامه‌هایتان را از دست ندهید", consentText:"آمار ناشناس بازدید مجاز باشد؟", consentYes:"بله", consentNo:"خیر", acctAria:"حساب",
+  dur:{y:n=>`${n} سال`, m:n=>`${n} ماه`, w:n=>`${n} هفته`, d:n=>`${n} روز`, join:' و '}, signInFacebook:"ورود با Facebook", signInApple:"ورود با Apple", signInOtherMethod:"این ایمیل با روش ورود دیگری ثبت شده است. با همان وارد شوید.",
+  mDone:"علامت انجام‌شده", mUndone:"برداشتن علامت انجام‌شده",
   name:'فارسی', appName:'افق', tabsAria:'سناریوها', newOrCopy:'جدید یا رونوشت', addTask:'+ کار',
   z:['۳ ماه','۶ ماه','۱ سال','۲ سال','۵ سال'], today:'امروز', todayPill:'امروز',
   stSaving:'در حال ذخیره…', stSaved:'ذخیره شد', stLocal:'فقط در این مرورگر',
@@ -576,6 +598,16 @@ function makeFormats(){
 makeFormats();
 const fmt = n => F.day(n), fmtM = n => F.my(n);
 const daysText = n => T.days(n, F.num(n));
+/* How long a period lasts, in calendar terms: "10 дн", "3 тиж", "4 міс", "1 р 3 міс" */
+function durText(s, e){
+  const days = e - s, D = T.dur;
+  if (days < 14) return D.d(F.num(days));
+  if (days < 56) return D.w(F.num(Math.round(days / 7)));
+  const a = dd(s), b = dd(e); let months = (b.y - a.y) * 12 + (b.m - a.m), rem = b.d - a.d;
+  if (rem < 0){ months -= 1; rem += 30; } if (rem >= 15) months += 1;
+  const y = Math.floor(months / 12), m = months % 12;
+  return [y ? D.y(F.num(y)) : '', m ? D.m(F.num(m)) : ''].filter(Boolean).join(D.join) || D.m(F.num(1));
+}
 const uid = () => Math.random().toString(36).slice(2,10);
 const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -802,7 +834,7 @@ const dayAt = px => view.start + px / ppd();
 const trackLeft = () => body.getBoundingClientRect().left;
 const measure = document.createElement('canvas').getContext('2d');
 const textW = (s, font) => { measure.font = font; return measure.measureText(s).width; };
-const NAME_FONT = '600 12.5px Onest, system-ui, sans-serif', DATE_FONT = '400 11px "JetBrains Mono", ui-monospace, monospace';
+const DUR_FONT = '600 11px Onest, system-ui, sans-serif', NAME_FONT = '600 12.5px Onest, system-ui, sans-serif', DATE_FONT = '400 11px "JetBrains Mono", ui-monospace, monospace';
 
 /* ---------- render ---------- */
 let raf = 0;
@@ -867,39 +899,49 @@ function segHtml(item, s, nextX){
   const w = trackW(), L = X(s.s), R = X(s.e);
   if (R < -60 || L > w + 60) return '';
   const W = Math.max(R - L, 4), ps = pieces(s);
-  const extra = (s.e <= TODAY ? ' past' : '') + (linking === s.id ? ' src' : '') + (liftedId === item.id ? ' lifted' : '') + (followIds.has(s.id) ? ' follows' : '');
+  const extra = (s.e <= TODAY ? ' past' : '') + (item.done ? ' done' : '') + (linking === s.id ? ' src' : '') + (liftedId === item.id ? ' lifted' : '') + (followIds.has(s.id) ? ' follows' : '');
   const visL = Math.max(L, 0), vis = Math.min(R, w) - visL, pad = 9;
   const dates = `${fmtM(s.s)} – ${fmtM(s.e-1)}`;
   const name = nm(item), nW = textW(name, NAME_FONT), dW = textW(dates, DATE_FONT);
+  const dur = durText(s.s, s.e), uW = textW(dur, DUR_FONT) + 12;
+  const ck = `<i class="ck${item.done ? ' on' : ''}" data-check="1" title="${esc(item.done ? T.mUndone : T.mDone)}"></i>`, cW = 21;
   let inside = '', above = '';
-  if (vis >= nW + dW + pad*2 + 10) inside = `<b>${esc(name)}</b><em>${esc(dates)}</em>`;
-  else if (vis >= nW + pad*2) inside = `<b>${esc(name)}</b>`;
+  if (vis >= cW + nW + uW + dW + pad*2 + 18) inside = `${ck}<b>${esc(name)}</b><i class="dur">${esc(dur)}</i><em>${esc(dates)}</em>`;
+  else if (vis >= cW + nW + uW + pad*2 + 8) inside = `${ck}<b>${esc(name)}</b><i class="dur">${esc(dur)}</i>`;
+  else if (vis >= cW + nW + pad*2) inside = `${ck}<b>${esc(name)}</b>`;
   else {
-    const maxW = Math.max(48, (nextX ?? w + 400) - visL - 10);
-    above = `<span class="above${s.e <= TODAY ? ' past' : ''}" data-seg="${s.id}" style="--c:var(--c${item.c%8});left:${visL}px;max-width:${maxW}px">${esc(name)}</span>`;
+    const maxW = Math.max(60, (nextX ?? w + 400) - visL - 10);
+    above = `<span class="above${s.e <= TODAY ? ' past' : ''}${item.done ? ' done' : ''}" data-seg="${s.id}" style="--c:var(--c${item.c%8});left:${visL}px;max-width:${maxW}px">${ck}<span>${esc(name)}<small> · ${esc(dur)}</small></span></span>`;
   }
-  const title = `${name} · ${fmt(s.s)} – ${fmt(s.e-1)}` + styleText(s);
+  const title = `${name} · ${fmt(s.s)} – ${fmt(s.e-1)} · ${dur}` + styleText(s);
   const px = d => clamp(X(d) - L, 0, W);
   const bodyHtml = ps.map((p,i) => { const a = px(p.a), b = i === ps.length-1 ? W : px(p.b);
     return `<div class="pc ${p.dash ? 'dash' : 'solid'}${i===0?' first':''}${i===ps.length-1?' last':''}" style="left:${a}px;width:${Math.max(b-a,1)}px"></div>`; }).join('');
   const marks = s.m.map((d,i) => `<i class="h h-m" data-h="m" data-mi="${i}" style="left:${px(d)}px"></i>`).join('');
   return above + `<div class="seg${extra}" data-seg="${s.id}" title="${esc(title)}" style="--c:var(--c${item.c%8});left:${L}px;width:${W}px">` +
     bodyHtml +
-    (inside ? `<span class="txt" style="left:${Math.max(0,-L) + pad}px;max-width:${vis - pad*2}px">${inside}</span>` : '') +
+    (inside ? `<span class="txt" style="left:${Math.max(0,-L) + (pad - 3)}px;max-width:${vis - pad*2 + 3}px">${inside}</span>` : '') +
     `<i class="h h-l" data-h="l"></i><i class="h h-r" data-h="r"></i>` + marks + `</div>`;
 }
 
+/* Tasks of one track that are entirely off screen on one side, nearest first. */
+function offscreen(its, dir){
+  const vEnd = view.start + view.days;
+  return dir === 'l'
+    ? its.filter(it => it.segs.every(s => s.e <= view.start)).sort((a,b) => b.segs.at(-1).e - a.segs.at(-1).e)
+    : its.filter(it => it.segs.every(s => s.s >= vEnd)).sort((a,b) => a.segs[0].s - b.segs[0].s);
+}
 function rowHtml(t, r){
   const vEnd = view.start + view.days;
   const its = t.items.filter(i => i.row === r);
   const all = its.flatMap(it => it.segs.map(s => ({it, s}))).sort((a,b) => a.s.s - b.s.s);
   let h = '';
   all.forEach((x,i) => { const nxt = all[i+1]; h += segHtml(x.it, x.s, nxt ? X(nxt.s.s) : null); });
-  const leftOut = its.filter(it => it.segs.every(s => s.e <= view.start)).sort((a,b) => b.segs.at(-1).e - a.segs.at(-1).e)[0];
-  const rightOut = its.filter(it => it.segs.every(s => s.s >= vEnd)).sort((a,b) => a.segs[0].s - b.segs[0].s)[0];
-  const chipTitle = it => esc(`${nm(it)}: ${fmtM(it.segs[0].s)} – ${fmtM(it.segs.at(-1).e-1)}`);
-  if (leftOut) h += `<button class="edge el" data-jump="${leftOut.id}" data-dir="l" style="--c:var(--c${leftOut.c%8})" title="${chipTitle(leftOut)}"><i>‹</i><span>${esc(nm(leftOut))}</span></button>`;
-  if (rightOut) h += `<button class="edge er" data-jump="${rightOut.id}" data-dir="r" style="--c:var(--c${rightOut.c%8})" title="${chipTitle(rightOut)}"><span>${esc(nm(rightOut))}</span><i>›</i></button>`;
+  const L = offscreen(its, 'l'), R = offscreen(its, 'r');
+  const label = list => esc((list[0].done ? '✓ ' : '') + nm(list[0])) + (list.length > 1 ? ` <b>+${F.num(list.length - 1)}</b>` : '');
+  const tip = list => esc(list.map(it => `${nm(it)}: ${fmtM(it.segs[0].s)} – ${fmtM(it.segs.at(-1).e-1)}`).join('\n'));
+  if (L.length) h += `<button class="edge el" data-edge="l" data-r="${r}" style="--c:var(--c${L[0].c%8})" title="${tip(L)}"><i>‹</i><span>${label(L)}</span></button>`;
+  if (R.length) h += `<button class="edge er" data-edge="r" data-r="${r}" style="--c:var(--c${R[0].c%8})" title="${tip(R)}"><span>${label(R)}</span><i>›</i></button>`;
   return `<div class="row" data-row="${r}">${h}</div>`;
 }
 
@@ -969,7 +1011,7 @@ $('thDark').onclick = () => setTheme('dark');
 /* ---------- tabs ---------- */
 function cloneTab(t){
   const map = {};
-  const items = t.items.map(it => ({id:uid(), k:it.k ?? null, name:it.name, c:it.c, row:it.row, segs:it.segs.map(s => { const n = {...copySeg(s), id:uid()}; map[s.id] = n.id; return n; })}));
+  const items = t.items.map(it => ({id:uid(), k:it.k ?? null, name:it.name, c:it.c, row:it.row, ...(it.done ? {done:true} : {}), segs:it.segs.map(s => { const n = {...copySeg(s), id:uid()}; map[s.id] = n.id; return n; })}));
   const out = {id:uid(), items, links:t.links.filter(l => map[l.a] && map[l.b]).map(l => ({a:map[l.a], b:map[l.b]}))};
   if (t.k){
     const same = data.tabs.filter(x => x.k === t.k && (x.n || 0) === (t.n || 0)); let v = 2; while (same.some(x => x.v === v)) v++;
@@ -1080,7 +1122,7 @@ function showLinkChip(){
   board.appendChild(toastEl);
 }
 function showTip(s, cx, cy, markDay, deps){
-  tip.textContent = (markDay != null ? T.tipStyleFrom(fmt(markDay)) : `${fmt(s.s)} → ${fmt(s.e-1)} · ${daysText(s.e - s.s)}`) + (deps ? T.withDeps(F.num(deps)) : '');
+  tip.textContent = (markDay != null ? T.tipStyleFrom(fmt(markDay)) : `${fmt(s.s)} → ${fmt(s.e-1)} · ${durText(s.s, s.e)}` + (s.e - s.s >= 14 ? ` (${daysText(s.e - s.s)})` : '')) + (deps ? T.withDeps(F.num(deps)) : '');
   tip.hidden = false;
   const w = tip.offsetWidth;
   tip.style.left = clamp(cx - w/2, 8, innerWidth - w - 8) + 'px';
@@ -1135,6 +1177,7 @@ function splitSeg(item, seg, day){
   settle(item, ...fs.map(f => f.item));
   persist(); schedule(); toast(T.tBreakAdded, true);
 }
+function toggleDone(item){ pushUndo(); item.done = !item.done; if (!item.done) delete item.done; persist(); schedule(); }
 function ensureVisible(s){ if (X(s.e) < 0 || X(s.s) > trackW()) view.start = s.s - view.days * 0.15; }
 function jumpTo(item, dir){
   if (dir === 'l') view.start = item.segs.at(-1).e - view.days * 0.75;
@@ -1250,7 +1293,7 @@ function segMenu(info, cx, cy){
   items.push({label:T.mAddPeriod, run:() => addPeriod(item)});
   items.push('-', {label:T.mLink, run:() => { linking = seg.id; showLinkChip(); schedule(); }});
   if (t.links.some(l => l.a === seg.id || l.b === seg.id)) items.push({label:T.mUnlink, run:() => { pushUndo(); t.links = t.links.filter(l => l.a !== seg.id && l.b !== seg.id); persist(); schedule(); }});
-  items.push('-', {label:T.mRename, run:() => renameItem(item.id, seg.id)});
+  items.push('-', {label:item.done ? T.mUndone : T.mDone, run:() => toggleDone(item)}, {label:T.mRename, run:() => renameItem(item.id, seg.id)});
   if (item.segs.length > 1) items.push({label:T.mDelPeriod, danger:true, run:() => deleteSeg(item, seg)});
   items.push({label:T.mDelTask, danger:true, run:() => deleteItem(item)});
   openMenu(items, cx, cy, `${nm(item)} · ${fmtM(seg.s)} – ${fmtM(seg.e-1)}`);
@@ -1268,6 +1311,7 @@ function hit(e){
   const t = e.target, px = e.clientX - trackLeft();
   if (t.closest('.ruler')) return {kind:'ruler', px};
   const segEl = t.closest('[data-seg]');
+  if (segEl && t.closest('[data-check]')) return {kind:'check', segId:segEl.dataset.seg, px};
   if (segEl) return {kind:'seg', segId:segEl.dataset.seg, h:t.dataset.h || null, mi:t.dataset.mi != null ? +t.dataset.mi : null, px};
   const rowEl = t.closest('[data-row]');
   if (rowEl) return {kind:'row', row:+rowEl.dataset.row, px};
@@ -1304,7 +1348,7 @@ board.addEventListener('pointermove', e => {
   applyDrag(e, dx, dy);
 });
 function beginDrag(dx, dy){
-  const i = ptr.info, f = i.kind === 'seg' && !linking ? segById(i.segId) : null;
+  const i = ptr.info, f = (i.kind === 'seg' || i.kind === 'check') && !linking ? segById(i.segId) : null;
   if (f){
     ptr.mode = i.h || 'move'; ptr.mi = i.mi; ptr.seg = f.seg; ptr.item = f.item;
     ptr.o = copySeg(f.seg); ptr.os = f.item.segs.map(copySeg);
@@ -1378,12 +1422,13 @@ function tap(p, e){
   const key = i.kind + ':' + (i.segId ?? i.row ?? '');
   const isDouble = lastTap && now - lastTap.t < 380 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 14 && lastTap.key === key;
   lastTap = isDouble ? null : {t:now, x:e.clientX, y:e.clientY, key};
+  if (i.kind === 'check' && !linking){ lastTap = null; const f = segById(i.segId); if (f) toggleDone(f.item); return; }
   if (linking){
-    if (i.kind === 'seg' && i.segId !== linking){
+    if ((i.kind === 'seg' || i.kind === 'check') && i.segId !== linking){
       const t = tab();
       if (!t.links.some(l => l.a === linking && l.b === i.segId)){ pushUndo(); t.links.push({a:linking, b:i.segId}); persist(); }
       linking = null; hideToast(); lastTap = null; schedule();
-    } else if (i.kind !== 'seg'){ linking = null; hideToast(); schedule(); }
+    } else if (i.kind !== 'seg' && i.kind !== 'check'){ linking = null; hideToast(); schedule(); }
     return;
   }
   if (!isDouble) return;
@@ -1410,8 +1455,12 @@ board.addEventListener('wheel', e => {
   if (dx && Math.abs(dx) >= Math.abs(dy)){ e.preventDefault(); view.start += dx / ppd(); schedule(); }
 }, {passive:false});
 rowsEl.addEventListener('click', e => {
-  const j = e.target.closest('[data-jump]'); if (!j) return;
-  const it = itemById(j.dataset.jump); it && jumpTo(it, j.dataset.dir);
+  const j = e.target.closest('[data-edge]'); if (!j) return;
+  const dir = j.dataset.edge, list = offscreen(tab().items.filter(i => i.row === +j.dataset.r), dir);
+  if (list.length === 1) return jumpTo(list[0], dir);
+  const rc = j.getBoundingClientRect();
+  openMenu(list.map(it => ({label:`${it.done ? '✓ ' : ''}${nm(it)} · ${fmtM(it.segs[0].s)} – ${fmtM(it.segs.at(-1).e-1)}`, run:() => jumpTo(it, dir)})),
+    dir === 'l' ? rc.left : rc.right - 280, rc.bottom + 4);
 });
 
 /* ---------- toolbar ---------- */
@@ -1476,10 +1525,22 @@ function accountMenu(){
   const r = acctBtn.getBoundingClientRect();
   cloudReady.then(cloud => {
     if (!account || account.anonymous){
-      openMenu([
-        {label:T.signInGoogle, run:async () => { prepareMerge(); try { await cloud.signInGoogle(); } catch (e) { pendingMerge = null; if (!/cancel|closed/i.test(String(e && e.code))) toast(T.signInFailed); } }},
-        {label:T.signInEmail, run:() => openEmail('send')},
-      ], Math.min(r.left, innerWidth - 260), r.bottom + 4, T.signInWhy);
+      const P = cloud.providers || {google:true, email:true};
+      const via = name => async () => {
+        prepareMerge();
+        try { await cloud.signInWith(name); }
+        catch (e) {
+          pendingMerge = null; const code = String(e && e.code);
+          if (code.includes('account-exists-with-different-credential')) toast(T.signInOtherMethod);
+          else if (!/cancel|closed/i.test(code)) toast(T.signInFailed);
+        }
+      };
+      const items = [];
+      if (P.google) items.push({label:T.signInGoogle, run:via('google')});
+      if (P.apple) items.push({label:T.signInApple, run:via('apple')});
+      if (P.facebook) items.push({label:T.signInFacebook, run:via('facebook')});
+      if (P.email) items.push({label:T.signInEmail, run:() => openEmail('send')});
+      openMenu(items, Math.min(r.left, innerWidth - 260), r.bottom + 4, T.signInWhy);
     } else {
       openMenu([
         {label:T.signOut, run:async () => {
@@ -1553,7 +1614,7 @@ if (document.fonts && document.fonts.ready) document.fonts.ready.then(schedule);
 <script type="module">
 /* Firebase bridge for Обрій on github.io: guest start, Google or email-link sign-in, per-person Firestore storage. */
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getAuth, onAuthStateChanged, signInAnonymously, GoogleAuthProvider, signInWithPopup, signInWithRedirect,
+import { getAuth, onAuthStateChanged, signInAnonymously, GoogleAuthProvider, FacebookAuthProvider, OAuthProvider, signInWithPopup, signInWithRedirect,
          sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, getDoc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
@@ -1566,6 +1627,9 @@ const firebaseConfig = {
   appId: "1:815112613572:web:801e9d0ce18198b7c5e391",
   measurementId: "G-WBSVGSSRHB"
 };
+
+/* Turn a sign-in option on here once it is also enabled in Firebase → Authentication → Sign-in method. */
+const PROVIDERS = { google: true, facebook: false, apple: false, email: true };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -1598,8 +1662,13 @@ window.obriiCloud = {
       };
     } };
   },
-  async signInGoogle(){
-    const provider = new GoogleAuthProvider(); provider.setCustomParameters({prompt:'select_account'});
+  providers: PROVIDERS,
+  async signInWith(name){
+    let provider;
+    if (name === 'google'){ provider = new GoogleAuthProvider(); provider.setCustomParameters({prompt:'select_account'}); }
+    else if (name === 'facebook'){ provider = new FacebookAuthProvider(); provider.addScope('email'); }
+    else if (name === 'apple'){ provider = new OAuthProvider('apple.com'); provider.addScope('email'); provider.addScope('name'); }
+    else throw new Error('unknown provider');
     try { await signInWithPopup(auth, provider); }
     catch (e) { if (e && e.code === 'auth/popup-blocked') await signInWithRedirect(auth, provider); else throw e; }
   },
