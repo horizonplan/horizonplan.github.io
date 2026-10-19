@@ -72,6 +72,9 @@ header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
 .btn{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:6px 12px;cursor:pointer;font-weight:500;white-space:nowrap}
 .btn:hover{border-color:var(--muted)}
 .btn.today{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+.today-grp{display:flex}
+.today-grp #todayBtn{border-start-end-radius:0;border-end-end-radius:0}
+.btn.caret{border-start-start-radius:0;border-end-start-radius:0;border-inline-start:0;padding:6px 8px;display:grid;place-items:center}
 .btn.add{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .btn.add:hover{filter:brightness(1.08)}
 /* Desktop adds tasks by double-click; touch screens keep a small round "+" as the visible starting point */
@@ -263,7 +266,7 @@ header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
       <div class="seg-ctl" id="zoom" role="group">
         <button data-d="91" data-z="0"></button><button data-d="182" data-z="1"></button><button data-d="365" data-z="2"></button><button data-d="730" data-z="3"></button><button data-d="1826" data-z="4"></button>
       </div>
-      <button class="btn today" id="todayBtn" data-t="today">Сьогодні</button>
+      <div class="today-grp"><button class="btn today" id="todayBtn" data-t="today">Сьогодні</button><button class="btn today caret" id="anchorBtn"><svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true"><path d="M3 4.5 6 7.5 9 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
       <div class="status pending" id="status"><i></i><span></span></div>
       <select class="lang" id="lang"></select>
       <div class="seg-ctl theme-ctl" role="group">
@@ -323,6 +326,7 @@ en: {
   secDates:"Dates", secLine:"Line · dashed = uncertain", secLinks:"Links", secTask:"Task", lgTitle:"What the lines mean", lgSolid:"Solid — a firm plan", lgDash:"Dash-dot — uncertain: doubts, it may not happen, dates are rough", lgMixed:"Solid, then dashed — sure at first, then less certain", lgDone:"Check — done", lgLink:"Arrow — what depends on what", lgBad:"Red dashed arrow — the plan doesn’t add up: the next step starts too early", lgPast:"Shaded background — the past",
   selCount:n=>`Selected: ${n}`, selEarlier:"−1 mo", selLater:"+1 mo", selClear:"Clear selection", mSelect:"Add to selection", mUnselect:"Remove from selection", selDone:"Mark selected as done", selLaterLong:"Move selected 1 month later", selEarlierLong:"Move selected 1 month earlier",
   openPill:"ongoing", noEnd:"No end date — ongoing", mNoEnd:"No end date", mSetEnd:"Set an end date",
+  openFrom:"Open the timeline at", anchorCenter:"Today in the middle", anchorLeft:"Today at the left edge", anchorTask:"The first task not yet done",
   name:'English', appName:'Horizon', tabsAria:'Scenarios', newOrCopy:'New or copy', addTask:'+ Task',
   z:['3 mo','6 mo','1 yr','2 yrs','5 yrs'], today:'Today', todayPill:'today',
   stSaving:'Saving…', stSaved:'Saved', stLocal:'This browser only',
@@ -373,6 +377,7 @@ uk: {
   secDates:"Дати", secLine:"Лінія · пунктир = непевно", secLinks:"Зв’язки", secTask:"Задача", lgTitle:"Що означають лінії", lgSolid:"Суцільна — впевнений план", lgDash:"Штрихпунктир — непевно: сумніви, може не вийти, дати приблизні", lgMixed:"Спершу суцільна, далі пунктир — спочатку впевнено, потім менш певно", lgDone:"Галочка — виконано", lgLink:"Стрілка — що від чого залежить", lgBad:"Червона пунктирна стрілка — план не сходиться: наступний крок починається зарано", lgPast:"Затінене тло — минуле",
   selCount:n=>`Вибрано: ${n}`, selEarlier:"−1 міс", selLater:"+1 міс", selClear:"Зняти виділення", mSelect:"Додати до вибраних", mUnselect:"Прибрати з вибраних", selDone:"Позначити вибрані виконаними", selLaterLong:"Посунути вибрані на місяць пізніше", selEarlierLong:"Посунути вибрані на місяць раніше",
   openPill:"без кінця", noEnd:"Без дати кінця — триває", mNoEnd:"Без дати кінця", mSetEnd:"Задати дату кінця",
+  openFrom:"Відкривати таймлайн", anchorCenter:"Сьогодні по центру", anchorLeft:"Сьогодні з лівого краю", anchorTask:"З першої невиконаної задачі",
   name:'Українська', appName:'Обрій', tabsAria:'Сценарії', newOrCopy:'Новий або копія', addTask:'+ Задача',
   z:['3 міс','6 міс','1 рік','2 роки','5 років'], today:'Сьогодні', todayPill:'сьогодні',
   stSaving:'Зберігаю…', stSaved:'Збережено', stLocal:'Лише в цьому браузері',
@@ -423,6 +428,7 @@ es: {
   secDates:"Fechas", secLine:"Línea · discontinua = incierto", secLinks:"Vínculos", secTask:"Tarea", lgTitle:"Qué significan las líneas", lgSolid:"Continua — un plan firme", lgDash:"Discontinua — incierto: dudas, puede no salir, fechas aproximadas", lgMixed:"Continua y luego discontinua — seguro al principio, después menos", lgDone:"Marca — hecho", lgLink:"Flecha — qué depende de qué", lgBad:"Flecha roja discontinua — el plan no cuadra: el siguiente paso empieza demasiado pronto", lgPast:"Fondo sombreado — el pasado",
   selCount:n=>`Seleccionadas: ${n}`, selEarlier:"−1 mes", selLater:"+1 mes", selClear:"Quitar selección", mSelect:"Añadir a la selección", mUnselect:"Quitar de la selección", selDone:"Marcar las seleccionadas como hechas", selLaterLong:"Mover las seleccionadas 1 mes después", selEarlierLong:"Mover las seleccionadas 1 mes antes",
   openPill:"sin fin", noEnd:"Sin fecha de fin — en curso", mNoEnd:"Sin fecha de fin", mSetEnd:"Poner fecha de fin",
+  openFrom:"Abrir la línea de tiempo en", anchorCenter:"Hoy en el centro", anchorLeft:"Hoy en el borde izquierdo", anchorTask:"La primera tarea sin hacer",
   name:'Español', appName:'Horizonte', tabsAria:'Escenarios', newOrCopy:'Nuevo o copia', addTask:'+ Tarea',
   z:['3 m','6 m','1 año','2 años','5 años'], today:'Hoy', todayPill:'hoy',
   stSaving:'Guardando…', stSaved:'Guardado', stLocal:'Solo en este navegador',
@@ -473,6 +479,7 @@ zh: {
   secDates:"日期", secLine:"线条 · 虚线 = 不确定", secLinks:"关联", secTask:"任务", lgTitle:"线条的含义", lgSolid:"实线 — 确定的计划", lgDash:"点划线 — 不确定：有疑虑、可能不成、日期大致", lgMixed:"先实线后虚线 — 起初确定，之后不那么确定", lgDone:"勾 — 已完成", lgLink:"箭头 — 依赖关系", lgBad:"红色虚线箭头 — 计划不合理：下一步开始得太早", lgPast:"阴影背景 — 过去",
   selCount:n=>`已选：${n}`, selEarlier:"−1个月", selLater:"+1个月", selClear:"取消选择", mSelect:"加入选择", mUnselect:"从选择中移除", selDone:"将所选标记为已完成", selLaterLong:"所选推迟 1 个月", selEarlierLong:"所选提前 1 个月",
   openPill:"持续中", noEnd:"无结束日期 — 持续中", mNoEnd:"不设结束日期", mSetEnd:"设置结束日期",
+  openFrom:"打开时间线时显示", anchorCenter:"今天居中", anchorLeft:"今天在左边缘", anchorTask:"第一个未完成的任务",
   name:'中文', appName:'地平线', tabsAria:'方案', newOrCopy:'新建或复制', addTask:'+ 任务',
   z:['3个月','6个月','1年','2年','5年'], today:'今天', todayPill:'今天',
   stSaving:'正在保存…', stSaved:'已保存', stLocal:'仅存于此浏览器',
@@ -523,6 +530,7 @@ ko: {
   secDates:"날짜", secLine:"선 · 점선 = 불확실", secLinks:"연결", secTask:"할 일", lgTitle:"선의 의미", lgSolid:"실선 — 확실한 계획", lgDash:"일점쇄선 — 불확실: 망설임, 안 될 수도 있음, 대략적인 날짜", lgMixed:"실선 다음 점선 — 처음엔 확실, 이후엔 덜 확실", lgDone:"체크 — 완료", lgLink:"화살표 — 무엇이 무엇에 달려 있는지", lgBad:"빨간 점선 화살표 — 계획이 맞지 않음: 다음 단계가 너무 일찍 시작됨", lgPast:"음영 배경 — 과거",
   selCount:n=>`선택됨: ${n}`, selEarlier:"−1개월", selLater:"+1개월", selClear:"선택 해제", mSelect:"선택에 추가", mUnselect:"선택에서 제거", selDone:"선택한 항목 완료로 표시", selLaterLong:"선택한 항목 1개월 뒤로", selEarlierLong:"선택한 항목 1개월 앞으로",
   openPill:"계속", noEnd:"종료일 없음 — 계속 진행", mNoEnd:"종료일 없음", mSetEnd:"종료일 설정",
+  openFrom:"타임라인 시작 위치", anchorCenter:"오늘을 가운데에", anchorLeft:"오늘을 왼쪽 끝에", anchorTask:"첫 번째 미완료 할 일부터",
   name:'한국어', appName:'지평선', tabsAria:'시나리오', newOrCopy:'새로 만들기 또는 복사', addTask:'+ 할 일',
   z:['3개월','6개월','1년','2년','5년'], today:'오늘', todayPill:'오늘',
   stSaving:'저장 중…', stSaved:'저장됨', stLocal:'이 브라우저에만',
@@ -573,6 +581,7 @@ fa: {
   secDates:"تاریخ‌ها", secLine:"خط · نقطه‌چین = نامطمئن", secLinks:"پیوندها", secTask:"کار", lgTitle:"معنای خط‌ها", lgSolid:"پیوسته — برنامهٔ قطعی", lgDash:"خط‌ونقطه — نامطمئن: تردید، شاید نشود، تاریخ‌ها تقریبی", lgMixed:"اول پیوسته، بعد نقطه‌چین — ابتدا مطمئن، بعد کمتر", lgDone:"تیک — انجام شد", lgLink:"فلش — چه چیزی به چه چیزی وابسته است", lgBad:"فلش قرمز نقطه‌چین — برنامه جور نیست: گام بعدی زود شروع می‌شود", lgPast:"پس‌زمینهٔ سایه‌دار — گذشته",
   selCount:n=>`انتخاب‌شده: ${n}`, selEarlier:"−۱ ماه", selLater:"+۱ ماه", selClear:"لغو انتخاب", mSelect:"افزودن به انتخاب", mUnselect:"حذف از انتخاب", selDone:"علامت انجام‌شده برای انتخاب‌ها", selLaterLong:"انتخاب‌ها یک ماه دیرتر", selEarlierLong:"انتخاب‌ها یک ماه زودتر",
   openPill:"بی‌پایان", noEnd:"بدون تاریخ پایان — ادامه دارد", mNoEnd:"بدون تاریخ پایان", mSetEnd:"تعیین تاریخ پایان",
+  openFrom:"باز کردن خط زمانی از", anchorCenter:"امروز در وسط", anchorLeft:"امروز در لبهٔ چپ", anchorTask:"اولین کار انجام‌نشده",
   name:'فارسی', appName:'افق', tabsAria:'سناریوها', newOrCopy:'جدید یا رونوشت', addTask:'+ کار',
   z:['۳ ماه','۶ ماه','۱ سال','۲ سال','۵ سال'], today:'امروز', todayPill:'امروز',
   stSaving:'در حال ذخیره…', stSaved:'ذخیره شد', stLocal:'فقط در این مرورگر',
@@ -770,9 +779,21 @@ function normalize(d){
 }
 let data = normalize((() => { try { return JSON.parse(lsGet(LS_DATA)); } catch { return null; } })());
 const view = { days: clamp(prefs.days || 365, MIN_DAYS, MAX_DAYS), start: 0 };
-view.start = TODAY - view.days/2;
+let userMoved = false;
+/* Where the timeline opens: today in the middle, today at the left edge, or the earliest task not yet done. */
+function homeStart(mode = prefs.anchor){
+  if (mode === 'left') return TODAY - view.days * 0.04;
+  if (mode === 'task'){
+    const t = data.tabs.find(x => x.id === data.active) || data.tabs[0];
+    const starts = t.items.filter(it => !it.done).flatMap(it => it.segs.filter(sg => sg.e > TODAY || it.segs.length === 1).map(sg => sg.s));
+    const all = starts.length ? starts : t.items.filter(it => !it.done).flatMap(it => it.segs.map(sg => sg.s));
+    if (all.length) return Math.min(...all) - view.days * 0.04;
+  }
+  return TODAY - view.days / 2;
+}
+view.start = homeStart();
 if (prefs.ui === 'light' || prefs.ui === 'dark') document.documentElement.setAttribute('data-ui', prefs.ui);
-const savePrefs = () => lsSet(LS_PREF, JSON.stringify({days:Math.round(view.days), ui:document.documentElement.getAttribute('data-ui')||'', lang:prefs.lang||'', stats:prefs.stats||''}));
+const savePrefs = () => lsSet(LS_PREF, JSON.stringify({days:Math.round(view.days), ui:document.documentElement.getAttribute('data-ui')||'', lang:prefs.lang||'', stats:prefs.stats||'', anchor:prefs.anchor||''}));
 
 const tab = () => data.tabs.find(t => t.id === data.active) || data.tabs[0];
 const itemById = id => tab().items.find(i => i.id === id);
@@ -847,7 +868,7 @@ async function flush(retried){
   if (remote.pending){ remote.pending = false; flush(); }
 }
 function adopt(body, owner){
-  try { const d = normalize(JSON.parse(body.json)); d.updatedAt = Number(body.updatedAt) || d.updatedAt; d.owner = owner; data = d; lsSet(LS_DATA, JSON.stringify(data)); renderTabs(); schedule(); } catch {}
+  try { const d = normalize(JSON.parse(body.json)); d.updatedAt = Number(body.updatedAt) || d.updatedAt; d.owner = owner; data = d; if (!userMoved) view.start = homeStart(); lsSet(LS_DATA, JSON.stringify(data)); renderTabs(); schedule(); } catch {}
 }
 /* Plans made before signing in are kept: they join the account as extra tabs. */
 function mergeInto(base, extra){
@@ -1080,7 +1101,7 @@ function applyLang(){
   $('thLight').setAttribute('aria-label', T.themeLight); $('thLight').title = T.themeLight;
   $('thDark').setAttribute('aria-label', T.themeDark); $('thDark').title = T.themeDark;
   $('dataBtn').setAttribute('aria-label', T.dataAria); $('dataBtn').title = T.dataAria;
-  $('helpBtn').setAttribute('aria-label', T.helpAria); $('addBtn').setAttribute('aria-label', T.newTask); $('addBtn').title = T.newTask; $('helpBtn').title = T.helpAria;
+  $('helpBtn').setAttribute('aria-label', T.helpAria); $('anchorBtn').setAttribute('aria-label', T.openFrom); $('anchorBtn').title = T.openFrom; $('addBtn').setAttribute('aria-label', T.newTask); $('addBtn').title = T.newTask; $('helpBtn').title = T.helpAria;
   $('helpList').innerHTML = T.help.map(([a,b]) => `<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('');
   $('legend').innerHTML = [
     ['<span class="lg-bar"><i class="pc solid first last"></i></span>', T.lgSolid],
@@ -1136,7 +1157,7 @@ function renameTab(id){
 }
 $('tabs').addEventListener('click', e => {
   const b = e.target.closest('[data-tab]');
-  if (b){ if (data.active !== b.dataset.tab){ data.active = b.dataset.tab; linking = null; selected = new Set(); hideToast(); lsSet(LS_DATA, JSON.stringify(data)); renderTabs(); schedule(); } return; }
+  if (b){ if (data.active !== b.dataset.tab){ data.active = b.dataset.tab; linking = null; selected = new Set(); view.start = homeStart(); userMoved = false; hideToast(); lsSet(LS_DATA, JSON.stringify(data)); renderTabs(); schedule(); } return; }
   const add = e.target.closest('#tabAdd');
   if (add){
     const r = add.getBoundingClientRect(), cur = tab();
@@ -1559,7 +1580,7 @@ function beginDrag(dx, dy){
 function applyDrag(e, dx, dy){
   const p = ppd(), dDays = Math.round(dx / p), m = ptr.mode;
   if (m === 'pan'){
-    view.start = ptr.o.start - dx / p;
+    view.start = ptr.o.start - dx / p; userMoved = true;
     if (ptr.info.kind !== 'ruler') scroller.scrollTop = ptr.o.top - dy;
     schedule(); return;
   }
@@ -1653,14 +1674,14 @@ let wheelSave = 0;
 board.addEventListener('wheel', e => {
   if (e.ctrlKey || e.metaKey){
     e.preventDefault(); const px = e.clientX - trackLeft(), under = dayAt(px);
-    view.days = clamp(view.days * Math.exp(e.deltaY * 0.0045), MIN_DAYS, MAX_DAYS); view.start = under - px / ppd();
+    view.days = clamp(view.days * Math.exp(e.deltaY * 0.0045), MIN_DAYS, MAX_DAYS); view.start = under - px / ppd(); userMoved = true;
     schedule(); clearTimeout(wheelSave); wheelSave = setTimeout(savePrefs, 400); return;
   }
   const unit = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1;
   let dx = e.deltaX * unit, dy = e.deltaY * unit;
   const canScrollY = scroller.scrollHeight > scroller.clientHeight + 1;
   if (!dx && (e.shiftKey || !canScrollY || e.target.closest('.ruler'))){ dx = dy; dy = 0; }
-  if (dx && Math.abs(dx) >= Math.abs(dy)){ e.preventDefault(); view.start += dx / ppd(); schedule(); }
+  if (dx && Math.abs(dx) >= Math.abs(dy)){ e.preventDefault(); view.start += dx / ppd(); userMoved = true; schedule(); }
 }, {passive:false});
 rowsEl.addEventListener('click', e => {
   const j = e.target.closest('[data-edge]'); if (!j) return;
@@ -1678,7 +1699,12 @@ $('zoom').addEventListener('click', e => {
   const center = view.start + view.days / 2;
   view.days = +b.dataset.d; view.start = center - view.days / 2; savePrefs(); schedule();
 });
-$('todayBtn').onclick = () => { view.start = TODAY - view.days / 2; schedule(); };
+$('todayBtn').onclick = () => { view.start = homeStart(prefs.anchor === 'left' ? 'left' : 'center'); userMoved = false; schedule(); };
+$('anchorBtn').onclick = () => {
+  const r = $('anchorBtn').getBoundingClientRect(), cur = prefs.anchor || 'center';
+  const opt = (mode, label) => ({label:(cur === mode ? '✓ ' : '\u2003') + label, run:() => { prefs.anchor = mode === 'center' ? '' : mode; savePrefs(); view.start = homeStart(mode); userMoved = false; schedule(); }});
+  openMenu([opt('center', T.anchorCenter), opt('left', T.anchorLeft), opt('task', T.anchorTask)], Math.min(r.left, innerWidth - 280), r.bottom + 4, T.openFrom);
+};
 $('helpBtn').onclick = () => {
   if (!help.hidden){ help.hidden = true; return; }
   help.hidden = false; const r = $('helpBtn').getBoundingClientRect();
