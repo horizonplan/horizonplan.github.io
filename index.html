@@ -74,6 +74,9 @@ header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
 .btn.today{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
 .btn.add{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .btn.add:hover{filter:brightness(1.08)}
+/* Desktop adds tasks by double-click; touch screens keep a small round "+" as the visible starting point */
+.btn.add{display:none}
+@media (pointer:coarse){.btn.add{display:grid;place-items:center;width:34px;height:34px;padding:0;border-radius:50%;font-size:20px;line-height:1}}
 .icon-btn{width:32px;height:32px;display:grid;place-items:center;border:1px solid var(--line);background:var(--surface);border-radius:9px;cursor:pointer;color:var(--muted)}
 .icon-btn:hover{color:var(--fg);border-color:var(--muted)}
 .icon-btn svg{width:16px;height:16px}
@@ -175,6 +178,15 @@ header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
 
 /* Floating UI */
 .menu{position:fixed;z-index:50;min-width:230px;max-width:min(340px,calc(100vw - 16px));background:var(--surface);border:1px solid var(--line);border-radius:11px;box-shadow:var(--shadow);padding:5px;display:flex;flex-direction:column}
+.menu{max-height:calc(100vh - 16px);overflow:auto}
+.menu.wide{max-width:min(560px,calc(100vw - 16px))}
+.mcols{display:grid;grid-template-columns:1fr 1fr;gap:2px 10px}
+.mcol{display:flex;flex-direction:column;min-width:0}
+.mgrp{display:flex;flex-direction:column;padding-bottom:4px}
+.mgrp hr{margin:4px 2px}
+.menu .ms{font-size:11px;font-weight:600;color:color-mix(in srgb,var(--accent) 70%,var(--muted));padding:8px 10px 3px}
+.menu.wide button{padding:6px 10px;font-size:13.5px}
+@media (max-width:600px){.mcols{grid-template-columns:1fr}}
 .menu .mh{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:6px 10px 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .menu button{border:0;background:transparent;text-align:start;padding:8px 10px;border-radius:7px;cursor:pointer;display:flex;gap:10px;align-items:center}
 .menu button:hover,.menu button:focus-visible{background:var(--surface-2)}
@@ -208,6 +220,15 @@ header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .help{position:fixed;z-index:55;width:min(380px,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:14px 16px}
 .help h3{margin:0 0 8px;font-size:13px;font-weight:600}
+.help h3+.legend{margin-bottom:14px}
+.help{max-height:calc(100vh - 80px);overflow:auto}
+.legend{display:flex;flex-direction:column;gap:7px;font-size:13px}
+.lg{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:center}
+.lg-i{display:flex;align-items:center;justify-content:center}
+.lg-bar{position:relative;display:block;width:40px;height:14px;--c:var(--c3)}
+.lg-bar .pc{position:absolute;top:0;bottom:0;left:0;right:0;border-radius:0}
+.lg-bar .pc.first:not(.last){right:50%}.lg-bar .pc.last:not(.first){left:50%}
+.lg-past{display:block;width:40px;height:14px;border-radius:4px;background:var(--past);border:1px solid var(--line)}
 .help dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13px}
 .help dt{font-family:var(--font-mono);font-size:11px;color:var(--muted);padding-top:2px;white-space:nowrap}
 .help dd{margin:0}
@@ -227,7 +248,7 @@ header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
     <div class="brand"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="1" y="4" width="11" height="3" rx="1.5" fill="var(--c0)"/><rect x="6" y="9" width="12" height="3" rx="1.5" fill="var(--c3)"/><rect x="3" y="14" width="8" height="3" rx="1.5" fill="none" stroke="var(--c1)" stroke-width="1.2" stroke-dasharray="3 1.5 1 1.5"/></svg><span data-t="appName">Обрій</span></div>
     <nav class="tabs" id="tabs"></nav>
     <div class="tools">
-      <button class="btn add" id="addBtn" data-t="addTask">+ Задача</button>
+      <button class="btn add" id="addBtn">+</button>
       <div class="seg-ctl" id="zoom" role="group">
         <button data-d="91" data-z="0"></button><button data-d="182" data-z="1"></button><button data-d="365" data-z="2"></button><button data-d="730" data-z="3"></button><button data-d="1826" data-z="4"></button>
       </div>
@@ -255,7 +276,7 @@ header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
 
 <div class="menu" id="menu" hidden role="menu"></div>
 <div class="tip" id="tip" hidden></div>
-<div class="help" id="help" hidden><h3 data-t="helpTitle"></h3><dl id="helpList"></dl></div>
+<div class="help" id="help" hidden><h3 data-t="lgTitle"></h3><div class="legend" id="legend"></div><h3 data-t="helpTitle"></h3><dl id="helpList"></dl></div>
 <div class="consent" id="consent" hidden><span data-t="consentText"></span><button type="button" class="btn primary" id="consentYes" data-t="consentYes"></button><button type="button" class="btn" id="consentNo" data-t="consentNo"></button></div>
 <div class="modal" id="emailModal" hidden>
   <form class="dialog" id="emailForm" novalidate>
@@ -286,7 +307,8 @@ en: {
   signIn:"Sign in", signInGoogle:"Sign in with Google", signInEmail:"Sign in with email", signInWhy:"So your plans are never lost and appear on all your devices", emailLabel:"Your email", emailSend:"Send link", emailSent:e=>`We sent a sign-in link to ${e}. Open it on this device.`, emailConfirm:"Confirm the email the link was sent to", signedInAs:e=>`Signed in as ${e}`, signOut:"Sign out", signInFailed:"Couldn’t sign in. Please try again.", tMerged:"Plans from this device were added as separate tabs", stDevice:"This device only", stDeviceTitle:"Sign in so you don’t lose your plans", consentText:"Allow anonymous visit statistics?", consentYes:"Yes", consentNo:"No", acctAria:"Account",
   dur:{y:n=>`${n} yr`, m:n=>`${n} mo`, w:n=>`${n} wk`, d:n=>`${n} d`, join:' '}, signInFacebook:"Sign in with Facebook", signInApple:"Sign in with Apple", signInOtherMethod:"This email is already used with another sign-in method. Please use that one.",
   mDone:"Mark as done", mUndone:"Mark as not done",
-  stageName:"stage name", mNewStage:d=>`New stage from ${d}`, mRenameTask:"Rename task", mStageAdd:"Name this stage", mStageRename:"Rename this stage", mStageClear:"Remove stage name", mDetach:"Make it a separate task",
+  stageName:"stage name", mNewStage:d=>`New stage from ${d}`, mRenameTask:"Rename task", mStageAdd:"Give this period its own name", mStageRename:"Rename this stage", mStageClear:"Use the task’s name again", mDetach:"Make it a separate task",
+  secDates:"Dates", secLine:"Line · dashed = uncertain", secLinks:"Links", secTask:"Task", lgTitle:"What the lines mean", lgSolid:"Solid — a firm plan", lgDash:"Dash-dot — uncertain: doubts, it may not happen, dates are rough", lgMixed:"Solid, then dashed — sure at first, then less certain", lgDone:"Check — done", lgLink:"Arrow — what depends on what", lgBad:"Red dashed arrow — the plan doesn’t add up: the next step starts too early", lgPast:"Shaded background — the past",
   name:'English', appName:'Horizon', tabsAria:'Scenarios', newOrCopy:'New or copy', addTask:'+ Task',
   z:['3 mo','6 mo','1 yr','2 yrs','5 yrs'], today:'Today', todayPill:'today',
   stSaving:'Saving…', stSaved:'Saved', stLocal:'This browser only',
@@ -294,7 +316,7 @@ en: {
   helpAria:'Tips', themeLight:'Light theme', themeDark:'Dark theme', langAria:'Language', dataAria:'Data and backups',
   helpTitle:'How to use the timeline',
   help:[
-    ['2× click','a bar — rename the task; if it has several periods, name this stage'],
+    ['2× click','a bar — rename it'],
     ['2× click','empty space — a new task right there'],
     ['drag','a bar sideways — new dates; up or down — another track'],
     ['drag an edge','change the length; the mark inside — where the line turns dashed or solid again'],
@@ -310,7 +332,7 @@ en: {
   styleDateAria:'From date', removeStyleAria:'Remove style change',
   mainPlan:'Main plan', scenarioN:n=>`Scenario ${n}`, newTask:'New task', variant:(b,n)=>`${b} · option ${n}`,
   names:{cert:"Certificate", diploma:"Diploma / certificate", license:"Driver’s license", jobSearch:"Job search", newJob:"New job", buyCar:"Buy a car", hobby:"Hobby", move:"Moving to my own place", finance:"Financial stability", newTask:"New task"}, exampleTab:'Example plan',
-  emptyTitle:'Nothing here yet', emptyText:'Press “+ Task” or double-click anywhere on the timeline',
+  emptyTitle:'Nothing here yet', emptyText:"Double-click or double-tap anywhere on the timeline to add your first task",
   mRename:'Rename', mDuplicate:'Duplicate as an option', mDeleteScenario:'Delete scenario', newScenario:'New scenario',
   emptyTimeline:'Empty timeline', copyOf:n=>`Copy of “${n}”`,
   mDates:'Set dates…', mExtDash:'Extend with a dashed line', mExtSolid:'Extend with a solid line',
@@ -321,7 +343,7 @@ en: {
   undo:'Undo', linkPick:'Choose the task that comes after this one',
   tipStyleFrom:d=>`style changes from ${d}`, withDeps:n=>` · with ${n} linked`,
   days:(n,f)=>`${f} ${n===1?'day':'days'}`,
-  allUncertain:' · all uncertain', dashedList:' · dashed: ',
+  allUncertain:' · all uncertain', dashedList:" · uncertain: ",
   dExport:'Save a copy to a file', dImport:'Restore from a file…', dAutoHead:'Automatic copies', dAuto:d=>`State on ${d}`, dNoAuto:'No automatic copies yet',
   tExported:'Copy saved', tImported:'Data restored from the file', tAutoRestored:d=>`Restored the state from ${d}`,
   tBadFile:'This file doesn’t look like a timeline copy',
@@ -332,7 +354,8 @@ uk: {
   signIn:"Увійти", signInGoogle:"Увійти через Google", signInEmail:"Увійти через пошту", signInWhy:"Щоб плани не загубилися і були на всіх ваших пристроях", emailLabel:"Ваша пошта", emailSend:"Надіслати посилання", emailSent:e=>`Посилання для входу надіслано на ${e}. Відкрийте його на цьому пристрої.`, emailConfirm:"Підтвердьте пошту, на яку прийшло посилання", signedInAs:e=>`Ви ввійшли як ${e}`, signOut:"Вийти", signInFailed:"Не вдалося ввійти. Спробуйте ще раз.", tMerged:"Плани з цього пристрою додано окремими вкладками", stDevice:"Лише на цьому пристрої", stDeviceTitle:"Увійдіть, щоб не втратити свої плани", consentText:"Дозволити анонімну статистику відвідувань?", consentYes:"Так", consentNo:"Ні", acctAria:"Акаунт",
   dur:{y:n=>`${n} р`, m:n=>`${n} міс`, w:n=>`${n} тиж`, d:n=>`${n} дн`, join:' '}, signInFacebook:"Увійти через Facebook", signInApple:"Увійти через Apple", signInOtherMethod:"Ця пошта вже прив’язана до іншого способу входу. Увійдіть ним.",
   mDone:"Позначити виконаною", mUndone:"Зняти позначку «виконано»",
-  stageName:"назва етапу", mNewStage:d=>`Новий етап з ${d}`, mRenameTask:"Перейменувати задачу", mStageAdd:"Назвати цей етап", mStageRename:"Перейменувати етап", mStageClear:"Прибрати назву етапу", mDetach:"Зробити окремою задачею",
+  stageName:"назва етапу", mNewStage:d=>`Новий етап з ${d}`, mRenameTask:"Перейменувати задачу", mStageAdd:"Окрема назва для цього періоду", mStageRename:"Перейменувати етап", mStageClear:"Повернути спільну назву", mDetach:"Зробити окремою задачею",
+  secDates:"Дати", secLine:"Лінія · пунктир = непевно", secLinks:"Зв’язки", secTask:"Задача", lgTitle:"Що означають лінії", lgSolid:"Суцільна — впевнений план", lgDash:"Штрихпунктир — непевно: сумніви, може не вийти, дати приблизні", lgMixed:"Спершу суцільна, далі пунктир — спочатку впевнено, потім менш певно", lgDone:"Галочка — виконано", lgLink:"Стрілка — що від чого залежить", lgBad:"Червона пунктирна стрілка — план не сходиться: наступний крок починається зарано", lgPast:"Затінене тло — минуле",
   name:'Українська', appName:'Обрій', tabsAria:'Сценарії', newOrCopy:'Новий або копія', addTask:'+ Задача',
   z:['3 міс','6 міс','1 рік','2 роки','5 років'], today:'Сьогодні', todayPill:'сьогодні',
   stSaving:'Зберігаю…', stSaved:'Збережено', stLocal:'Лише в цьому браузері',
@@ -340,7 +363,7 @@ uk: {
   helpAria:'Підказки', themeLight:'Світла тема', themeDark:'Темна тема', langAria:'Мова', dataAria:'Дані та копії',
   helpTitle:'Як працювати з таймлайном',
   help:[
-    ['2× клік','по змійці — перейменувати задачу; якщо в неї кілька періодів — назвати цей етап'],
+    ['2× клік','по змійці — перейменувати'],
     ['2× клік','по порожньому місцю — нова задача саме тут'],
     ['тягнути','змійку вбік — інші дати; вгору чи вниз — на іншу доріжку'],
     ['за край','змінити довжину; позначка всередині — місце, де лінія стає пунктиром або знову суцільною'],
@@ -356,7 +379,7 @@ uk: {
   styleDateAria:'З дати', removeStyleAria:'Прибрати зміну стилю',
   mainPlan:'Основний план', scenarioN:n=>`Сценарій ${n}`, newTask:'Нова задача', variant:(b,n)=>`${b} · варіант ${n}`,
   names:{cert:"Сертифікат", diploma:"Диплом / сертифікат", license:"Водійські права", jobSearch:"Пошук роботи", newJob:"Нова робота", buyCar:"Купити авто", hobby:"Хобі", move:"Переїзд в окреме житло", finance:"Фінансова стабільність", newTask:"Нова задача"}, exampleTab:'Приклад плану',
-  emptyTitle:'Тут поки порожньо', emptyText:'Натисніть «+ Задача» або двічі клацніть будь-де на таймлайні',
+  emptyTitle:'Тут поки порожньо', emptyText:"Двічі клацніть або торкніться будь-де на таймлайні, щоб додати першу задачу",
   mRename:'Перейменувати', mDuplicate:'Дублювати як варіант', mDeleteScenario:'Видалити сценарій', newScenario:'Новий сценарій',
   emptyTimeline:'Порожній таймлайн', copyOf:n=>`Копія «${n}»`,
   mDates:'Задати дати…', mExtDash:'Продовжити пунктиром', mExtSolid:'Продовжити суцільною лінією',
@@ -367,7 +390,7 @@ uk: {
   undo:'Повернути', linkPick:'Оберіть задачу, яка йде після цієї',
   tipStyleFrom:d=>`зміна стилю з ${d}`, withDeps:n=>` · і пов’язаних: ${n}`,
   days:(n,f)=>{ const a=n%100, b=n%10; return `${f} ${(a>10&&a<20)?'днів':b===1?'день':(b>=2&&b<=4)?'дні':'днів'}`; },
-  allUncertain:' · уся непевна', dashedList:' · пунктир: ',
+  allUncertain:' · уся непевна', dashedList:" · непевно: ",
   dExport:'Зберегти копію у файл', dImport:'Відновити з файлу…', dAutoHead:'Автокопії', dAuto:d=>`Стан на ${d}`, dNoAuto:'Автокопій ще немає',
   tExported:'Копію збережено', tImported:'Дані відновлено з файлу', tAutoRestored:d=>`Відновлено стан на ${d}`,
   tBadFile:'Цей файл не схожий на копію таймлайну',
@@ -378,7 +401,8 @@ es: {
   signIn:"Iniciar sesión", signInGoogle:"Iniciar sesión con Google", signInEmail:"Iniciar sesión con correo", signInWhy:"Para que tus planes no se pierdan y estén en todos tus dispositivos", emailLabel:"Tu correo", emailSend:"Enviar enlace", emailSent:e=>`Enviamos un enlace de acceso a ${e}. Ábrelo en este dispositivo.`, emailConfirm:"Confirma el correo al que llegó el enlace", signedInAs:e=>`Sesión iniciada como ${e}`, signOut:"Cerrar sesión", signInFailed:"No se pudo iniciar sesión. Inténtalo de nuevo.", tMerged:"Los planes de este dispositivo se añadieron como pestañas aparte", stDevice:"Solo en este dispositivo", stDeviceTitle:"Inicia sesión para no perder tus planes", consentText:"¿Permitir estadísticas anónimas de visitas?", consentYes:"Sí", consentNo:"No", acctAria:"Cuenta",
   dur:{y:n=>`${n} ${n==='1'?'año':'años'}`, m:n=>`${n} ${n==='1'?'mes':'meses'}`, w:n=>`${n} sem`, d:n=>`${n} d`, join:' '}, signInFacebook:"Iniciar sesión con Facebook", signInApple:"Iniciar sesión con Apple", signInOtherMethod:"Este correo ya se usa con otro método de acceso. Entra con ese.",
   mDone:"Marcar como hecha", mUndone:"Desmarcar como hecha",
-  stageName:"nombre de la etapa", mNewStage:d=>`Nueva etapa desde el ${d}`, mRenameTask:"Cambiar nombre de la tarea", mStageAdd:"Nombrar esta etapa", mStageRename:"Cambiar nombre de la etapa", mStageClear:"Quitar nombre de la etapa", mDetach:"Convertir en tarea aparte",
+  stageName:"nombre de la etapa", mNewStage:d=>`Nueva etapa desde el ${d}`, mRenameTask:"Cambiar nombre de la tarea", mStageAdd:"Dar un nombre propio a este periodo", mStageRename:"Cambiar nombre de la etapa", mStageClear:"Volver al nombre de la tarea", mDetach:"Convertir en tarea aparte",
+  secDates:"Fechas", secLine:"Línea · discontinua = incierto", secLinks:"Vínculos", secTask:"Tarea", lgTitle:"Qué significan las líneas", lgSolid:"Continua — un plan firme", lgDash:"Discontinua — incierto: dudas, puede no salir, fechas aproximadas", lgMixed:"Continua y luego discontinua — seguro al principio, después menos", lgDone:"Marca — hecho", lgLink:"Flecha — qué depende de qué", lgBad:"Flecha roja discontinua — el plan no cuadra: el siguiente paso empieza demasiado pronto", lgPast:"Fondo sombreado — el pasado",
   name:'Español', appName:'Horizonte', tabsAria:'Escenarios', newOrCopy:'Nuevo o copia', addTask:'+ Tarea',
   z:['3 m','6 m','1 año','2 años','5 años'], today:'Hoy', todayPill:'hoy',
   stSaving:'Guardando…', stSaved:'Guardado', stLocal:'Solo en este navegador',
@@ -386,7 +410,7 @@ es: {
   helpAria:'Ayuda', themeLight:'Tema claro', themeDark:'Tema oscuro', langAria:'Idioma', dataAria:'Datos y copias',
   helpTitle:'Cómo usar la línea de tiempo',
   help:[
-    ['2× clic','en una barra — cambiar el nombre; si tiene varios periodos, nombrar esta etapa'],
+    ['2× clic','en una barra — cambiar el nombre'],
     ['2× clic','en un espacio vacío — nueva tarea justo ahí'],
     ['arrastrar','la barra a los lados — otras fechas; arriba o abajo — otra pista'],
     ['por el borde','cambiar la duración; la marca interior — donde la línea pasa a discontinua o vuelve a ser continua'],
@@ -402,7 +426,7 @@ es: {
   styleDateAria:'Desde la fecha', removeStyleAria:'Quitar cambio de estilo',
   mainPlan:'Plan principal', scenarioN:n=>`Escenario ${n}`, newTask:'Nueva tarea', variant:(b,n)=>`${b} · opción ${n}`,
   names:{cert:"Certificado", diploma:"Diploma / certificado", license:"Carné de conducir", jobSearch:"Búsqueda de trabajo", newJob:"Nuevo trabajo", buyCar:"Comprar un coche", hobby:"Afición", move:"Mudarme a mi propia casa", finance:"Estabilidad financiera", newTask:"Nueva tarea"}, exampleTab:'Plan de ejemplo',
-  emptyTitle:'Aquí aún no hay nada', emptyText:'Pulsa «+ Tarea» o haz doble clic en cualquier parte de la línea de tiempo',
+  emptyTitle:'Aquí aún no hay nada', emptyText:"Haz doble clic o toca dos veces en cualquier parte de la línea de tiempo para añadir tu primera tarea",
   mRename:'Cambiar nombre', mDuplicate:'Duplicar como opción', mDeleteScenario:'Eliminar escenario', newScenario:'Nuevo escenario',
   emptyTimeline:'Línea de tiempo vacía', copyOf:n=>`Copia de «${n}»`,
   mDates:'Fijar fechas…', mExtDash:'Continuar con línea discontinua', mExtSolid:'Continuar con línea continua',
@@ -413,7 +437,7 @@ es: {
   undo:'Deshacer', linkPick:'Elige la tarea que va después de esta',
   tipStyleFrom:d=>`el estilo cambia desde el ${d}`, withDeps:n=>` · con ${n} vinculadas`,
   days:(n,f)=>`${f} ${n===1?'día':'días'}`,
-  allUncertain:' · todo incierto', dashedList:' · discontinua: ',
+  allUncertain:' · todo incierto', dashedList:" · incierto: ",
   dExport:'Guardar una copia en un archivo', dImport:'Restaurar desde un archivo…', dAutoHead:'Copias automáticas', dAuto:d=>`Estado del ${d}`, dNoAuto:'Aún no hay copias automáticas',
   tExported:'Copia guardada', tImported:'Datos restaurados desde el archivo', tAutoRestored:d=>`Restaurado el estado del ${d}`,
   tBadFile:'Este archivo no parece una copia de la línea de tiempo',
@@ -424,7 +448,8 @@ zh: {
   signIn:"登录", signInGoogle:"使用 Google 登录", signInEmail:"使用邮箱登录", signInWhy:"这样你的计划不会丢失，并能在所有设备上看到", emailLabel:"你的邮箱", emailSend:"发送链接", emailSent:e=>`登录链接已发送到 ${e}。请在此设备上打开。`, emailConfirm:"请确认收到链接的邮箱", signedInAs:e=>`已登录：${e}`, signOut:"退出登录", signInFailed:"登录失败，请重试。", tMerged:"此设备上的计划已作为单独的标签页添加", stDevice:"仅存于此设备", stDeviceTitle:"登录以免丢失你的计划", consentText:"允许匿名访问统计吗？", consentYes:"允许", consentNo:"不允许", acctAria:"账户",
   dur:{y:n=>`${n}年`, m:n=>`${n}个月`, w:n=>`${n}周`, d:n=>`${n}天`, join:''}, signInFacebook:"使用 Facebook 登录", signInApple:"使用 Apple 登录", signInOtherMethod:"此邮箱已绑定其他登录方式，请使用该方式登录。",
   mDone:"标记为已完成", mUndone:"取消已完成",
-  stageName:"阶段名称", mNewStage:d=>`从 ${d} 起新阶段`, mRenameTask:"重命名任务", mStageAdd:"为此阶段命名", mStageRename:"重命名此阶段", mStageClear:"移除阶段名称", mDetach:"拆分为单独任务",
+  stageName:"阶段名称", mNewStage:d=>`从 ${d} 起新阶段`, mRenameTask:"重命名任务", mStageAdd:"为此时段单独命名", mStageRename:"重命名此阶段", mStageClear:"恢复任务名称", mDetach:"拆分为单独任务",
+  secDates:"日期", secLine:"线条 · 虚线 = 不确定", secLinks:"关联", secTask:"任务", lgTitle:"线条的含义", lgSolid:"实线 — 确定的计划", lgDash:"点划线 — 不确定：有疑虑、可能不成、日期大致", lgMixed:"先实线后虚线 — 起初确定，之后不那么确定", lgDone:"勾 — 已完成", lgLink:"箭头 — 依赖关系", lgBad:"红色虚线箭头 — 计划不合理：下一步开始得太早", lgPast:"阴影背景 — 过去",
   name:'中文', appName:'地平线', tabsAria:'方案', newOrCopy:'新建或复制', addTask:'+ 任务',
   z:['3个月','6个月','1年','2年','5年'], today:'今天', todayPill:'今天',
   stSaving:'正在保存…', stSaved:'已保存', stLocal:'仅存于此浏览器',
@@ -432,7 +457,7 @@ zh: {
   helpAria:'帮助', themeLight:'浅色主题', themeDark:'深色主题', langAria:'语言', dataAria:'数据与备份',
   helpTitle:'如何使用时间线',
   help:[
-    ['双击','条形 — 重命名任务；若有多个时段，则为此阶段命名'],
+    ['双击','条形 — 重命名'],
     ['双击','空白处 — 在此处新建任务'],
     ['拖动','条形左右 — 改变日期；上下 — 换到另一条轨道'],
     ['拖动边缘','改变时长；内部标记 — 线条变为虚线或恢复实线的位置'],
@@ -448,7 +473,7 @@ zh: {
   styleDateAria:'起始日期', removeStyleAria:'删除样式变化',
   mainPlan:'主要计划', scenarioN:n=>`方案 ${n}`, newTask:'新任务', variant:(b,n)=>`${b} · 选项 ${n}`,
   names:{cert:"证书", diploma:"毕业证 / 证书", license:"驾照", jobSearch:"找工作", newJob:"新工作", buyCar:"买车", hobby:"爱好", move:"搬进自己的住处", finance:"财务稳定", newTask:"新任务"}, exampleTab:'示例计划',
-  emptyTitle:'这里还是空的', emptyText:'点击“+ 任务”，或在时间线上任意位置双击',
+  emptyTitle:'这里还是空的', emptyText:"在时间线上任意位置双击或连点两下，添加第一个任务",
   mRename:'重命名', mDuplicate:'复制为另一选项', mDeleteScenario:'删除方案', newScenario:'新方案',
   emptyTimeline:'空白时间线', copyOf:n=>`“${n}”的副本`,
   mDates:'设置日期…', mExtDash:'用虚线延长', mExtSolid:'用实线延长',
@@ -459,7 +484,7 @@ zh: {
   undo:'撤销', linkPick:'选择紧接在此之后的任务',
   tipStyleFrom:d=>`样式从 ${d} 起变化`, withDeps:n=>` · 连同 ${n} 个关联任务`,
   days:(n,f)=>`${f} 天`,
-  allUncertain:' · 全部不确定', dashedList:' · 虚线：',
+  allUncertain:' · 全部不确定', dashedList:" · 不确定：",
   dExport:'保存副本到文件', dImport:'从文件恢复…', dAutoHead:'自动备份', dAuto:d=>`${d} 的状态`, dNoAuto:'还没有自动备份',
   tExported:'副本已保存', tImported:'已从文件恢复数据', tAutoRestored:d=>`已恢复到 ${d} 的状态`,
   tBadFile:'此文件看起来不是时间线副本',
@@ -470,7 +495,8 @@ ko: {
   signIn:"로그인", signInGoogle:"Google로 로그인", signInEmail:"이메일로 로그인", signInWhy:"계획을 잃지 않고 모든 기기에서 볼 수 있도록", emailLabel:"이메일 주소", emailSend:"링크 보내기", emailSent:e=>`${e}(으)로 로그인 링크를 보냈습니다. 이 기기에서 여세요.`, emailConfirm:"링크를 받은 이메일 주소를 확인하세요", signedInAs:e=>`${e}(으)로 로그인됨`, signOut:"로그아웃", signInFailed:"로그인하지 못했습니다. 다시 시도하세요.", tMerged:"이 기기의 계획을 별도 탭으로 추가했습니다", stDevice:"이 기기에만", stDeviceTitle:"계획을 잃지 않으려면 로그인하세요", consentText:"익명 방문 통계를 허용할까요?", consentYes:"예", consentNo:"아니요", acctAria:"계정",
   dur:{y:n=>`${n}년`, m:n=>`${n}개월`, w:n=>`${n}주`, d:n=>`${n}일`, join:' '}, signInFacebook:"Facebook으로 로그인", signInApple:"Apple로 로그인", signInOtherMethod:"이 이메일은 다른 로그인 방법에 이미 연결되어 있습니다. 그 방법으로 로그인하세요.",
   mDone:"완료로 표시", mUndone:"완료 표시 해제",
-  stageName:"단계 이름", mNewStage:d=>`${d}부터 새 단계`, mRenameTask:"할 일 이름 바꾸기", mStageAdd:"이 단계 이름 정하기", mStageRename:"단계 이름 바꾸기", mStageClear:"단계 이름 삭제", mDetach:"별도 할 일로 분리",
+  stageName:"단계 이름", mNewStage:d=>`${d}부터 새 단계`, mRenameTask:"할 일 이름 바꾸기", mStageAdd:"이 기간에 별도 이름 붙이기", mStageRename:"단계 이름 바꾸기", mStageClear:"할 일 이름으로 되돌리기", mDetach:"별도 할 일로 분리",
+  secDates:"날짜", secLine:"선 · 점선 = 불확실", secLinks:"연결", secTask:"할 일", lgTitle:"선의 의미", lgSolid:"실선 — 확실한 계획", lgDash:"일점쇄선 — 불확실: 망설임, 안 될 수도 있음, 대략적인 날짜", lgMixed:"실선 다음 점선 — 처음엔 확실, 이후엔 덜 확실", lgDone:"체크 — 완료", lgLink:"화살표 — 무엇이 무엇에 달려 있는지", lgBad:"빨간 점선 화살표 — 계획이 맞지 않음: 다음 단계가 너무 일찍 시작됨", lgPast:"음영 배경 — 과거",
   name:'한국어', appName:'지평선', tabsAria:'시나리오', newOrCopy:'새로 만들기 또는 복사', addTask:'+ 할 일',
   z:['3개월','6개월','1년','2년','5년'], today:'오늘', todayPill:'오늘',
   stSaving:'저장 중…', stSaved:'저장됨', stLocal:'이 브라우저에만',
@@ -478,7 +504,7 @@ ko: {
   helpAria:'도움말', themeLight:'밝은 테마', themeDark:'어두운 테마', langAria:'언어', dataAria:'데이터 및 백업',
   helpTitle:'타임라인 사용 방법',
   help:[
-    ['더블 클릭','막대 — 이름 바꾸기, 기간이 여러 개면 이 단계 이름 정하기'],
+    ['더블 클릭','막대 — 이름 바꾸기'],
     ['더블 클릭','빈 곳 — 바로 그곳에 새 할 일'],
     ['드래그','막대를 옆으로 — 날짜 변경, 위아래로 — 다른 트랙으로'],
     ['가장자리 드래그','기간 변경, 안쪽 표시 — 선이 점선이 되거나 다시 실선이 되는 지점'],
@@ -494,7 +520,7 @@ ko: {
   styleDateAria:'시작 날짜', removeStyleAria:'모양 변경 삭제',
   mainPlan:'기본 계획', scenarioN:n=>`시나리오 ${n}`, newTask:'새 할 일', variant:(b,n)=>`${b} · 대안 ${n}`,
   names:{cert:"자격증", diploma:"졸업장 / 자격증", license:"운전면허", jobSearch:"구직", newJob:"새 직장", buyCar:"자동차 구입", hobby:"취미", move:"독립해서 이사", finance:"재정 안정", newTask:"새 할 일"}, exampleTab:'예시 계획',
-  emptyTitle:'아직 비어 있어요', emptyText:'“+ 할 일”을 누르거나 타임라인 아무 곳이나 더블 클릭하세요',
+  emptyTitle:'아직 비어 있어요', emptyText:"타임라인 아무 곳이나 더블 클릭하거나 두 번 탭해 첫 할 일을 추가하세요",
   mRename:'이름 바꾸기', mDuplicate:'대안으로 복제', mDeleteScenario:'시나리오 삭제', newScenario:'새 시나리오',
   emptyTimeline:'빈 타임라인', copyOf:n=>`“${n}” 사본`,
   mDates:'날짜 설정…', mExtDash:'점선으로 연장', mExtSolid:'실선으로 연장',
@@ -505,7 +531,7 @@ ko: {
   undo:'되돌리기', linkPick:'이 다음에 오는 할 일을 선택하세요',
   tipStyleFrom:d=>`${d}부터 모양 변경`, withDeps:n=>` · 연결된 ${n}개 포함`,
   days:(n,f)=>`${f}일`,
-  allUncertain:' · 전체 불확실', dashedList:' · 점선: ',
+  allUncertain:' · 전체 불확실', dashedList:" · 불확실: ",
   dExport:'파일로 사본 저장', dImport:'파일에서 복원…', dAutoHead:'자동 사본', dAuto:d=>`${d} 상태`, dNoAuto:'아직 자동 사본이 없습니다',
   tExported:'사본 저장됨', tImported:'파일에서 데이터를 복원했습니다', tAutoRestored:d=>`${d} 상태로 복원했습니다`,
   tBadFile:'이 파일은 타임라인 사본이 아닌 것 같습니다',
@@ -516,7 +542,8 @@ fa: {
   signIn:"ورود", signInGoogle:"ورود با Google", signInEmail:"ورود با ایمیل", signInWhy:"تا برنامه‌هایتان گم نشود و در همهٔ دستگاه‌هایتان باشد", emailLabel:"ایمیل شما", emailSend:"ارسال پیوند", emailSent:e=>`پیوند ورود به ${e} فرستاده شد. آن را در همین دستگاه باز کنید.`, emailConfirm:"ایمیلی را که پیوند به آن رسیده تأیید کنید", signedInAs:e=>`وارد شده با ${e}`, signOut:"خروج", signInFailed:"ورود ممکن نشد. دوباره تلاش کنید.", tMerged:"برنامه‌های این دستگاه به‌صورت زبانه‌های جداگانه اضافه شد", stDevice:"فقط در این دستگاه", stDeviceTitle:"وارد شوید تا برنامه‌هایتان را از دست ندهید", consentText:"آمار ناشناس بازدید مجاز باشد؟", consentYes:"بله", consentNo:"خیر", acctAria:"حساب",
   dur:{y:n=>`${n} سال`, m:n=>`${n} ماه`, w:n=>`${n} هفته`, d:n=>`${n} روز`, join:' و '}, signInFacebook:"ورود با Facebook", signInApple:"ورود با Apple", signInOtherMethod:"این ایمیل با روش ورود دیگری ثبت شده است. با همان وارد شوید.",
   mDone:"علامت انجام‌شده", mUndone:"برداشتن علامت انجام‌شده",
-  stageName:"نام مرحله", mNewStage:d=>`مرحلهٔ جدید از ${d}`, mRenameTask:"تغییر نام کار", mStageAdd:"نام‌گذاری این مرحله", mStageRename:"تغییر نام مرحله", mStageClear:"حذف نام مرحله", mDetach:"تبدیل به کار جداگانه",
+  stageName:"نام مرحله", mNewStage:d=>`مرحلهٔ جدید از ${d}`, mRenameTask:"تغییر نام کار", mStageAdd:"نام جداگانه برای این دوره", mStageRename:"تغییر نام مرحله", mStageClear:"بازگشت به نام کار", mDetach:"تبدیل به کار جداگانه",
+  secDates:"تاریخ‌ها", secLine:"خط · نقطه‌چین = نامطمئن", secLinks:"پیوندها", secTask:"کار", lgTitle:"معنای خط‌ها", lgSolid:"پیوسته — برنامهٔ قطعی", lgDash:"خط‌ونقطه — نامطمئن: تردید، شاید نشود، تاریخ‌ها تقریبی", lgMixed:"اول پیوسته، بعد نقطه‌چین — ابتدا مطمئن، بعد کمتر", lgDone:"تیک — انجام شد", lgLink:"فلش — چه چیزی به چه چیزی وابسته است", lgBad:"فلش قرمز نقطه‌چین — برنامه جور نیست: گام بعدی زود شروع می‌شود", lgPast:"پس‌زمینهٔ سایه‌دار — گذشته",
   name:'فارسی', appName:'افق', tabsAria:'سناریوها', newOrCopy:'جدید یا رونوشت', addTask:'+ کار',
   z:['۳ ماه','۶ ماه','۱ سال','۲ سال','۵ سال'], today:'امروز', todayPill:'امروز',
   stSaving:'در حال ذخیره…', stSaved:'ذخیره شد', stLocal:'فقط در این مرورگر',
@@ -524,7 +551,7 @@ fa: {
   helpAria:'راهنما', themeLight:'پوستهٔ روشن', themeDark:'پوستهٔ تیره', langAria:'زبان', dataAria:'داده‌ها و پشتیبان‌ها',
   helpTitle:'نحوهٔ کار با خط زمانی',
   help:[
-    ['دوبار کلیک','روی نوار — تغییر نام کار؛ اگر چند دوره دارد، نام‌گذاری این مرحله'],
+    ['دوبار کلیک','روی نوار — تغییر نام'],
     ['دوبار کلیک','روی جای خالی — کار جدید همان‌جا'],
     ['کشیدن','نوار به چپ و راست — تاریخ‌های دیگر؛ بالا یا پایین — مسیر دیگر'],
     ['کشیدن لبه','تغییر طول؛ نشانهٔ داخلی — جایی که خط نقطه‌چین یا دوباره پیوسته می‌شود'],
@@ -540,7 +567,7 @@ fa: {
   styleDateAria:'از تاریخ', removeStyleAria:'حذف تغییر شکل',
   mainPlan:'برنامهٔ اصلی', scenarioN:n=>`سناریوی ${n}`, newTask:'کار جدید', variant:(b,n)=>`${b} · گزینهٔ ${n}`,
   names:{cert:"گواهی‌نامه", diploma:"مدرک / گواهی‌نامه", license:"گواهینامهٔ رانندگی", jobSearch:"جست‌وجوی شغل", newJob:"شغل جدید", buyCar:"خرید ماشین", hobby:"سرگرمی", move:"نقل مکان به خانهٔ خودم", finance:"ثبات مالی", newTask:"کار جدید"}, exampleTab:'برنامهٔ نمونه',
-  emptyTitle:'هنوز چیزی اینجا نیست', emptyText:'روی «+ کار» بزنید یا هر جای خط زمانی دوبار کلیک کنید',
+  emptyTitle:'هنوز چیزی اینجا نیست', emptyText:"برای افزودن اولین کار، هر جای خط زمانی دوبار کلیک یا دوبار ضربه بزنید",
   mRename:'تغییر نام', mDuplicate:'رونوشت به‌عنوان گزینه', mDeleteScenario:'حذف سناریو', newScenario:'سناریوی جدید',
   emptyTimeline:'خط زمانی خالی', copyOf:n=>`رونوشت «${n}»`,
   mDates:'تعیین تاریخ‌ها…', mExtDash:'ادامه با نقطه‌چین', mExtSolid:'ادامه با خط پیوسته',
@@ -551,7 +578,7 @@ fa: {
   undo:'واگرد', linkPick:'کاری را که بعد از این می‌آید انتخاب کنید',
   tipStyleFrom:d=>`تغییر شکل از ${d}`, withDeps:n=>` · همراه با ${n} کار وابسته`,
   days:(n,f)=>`${f} روز`,
-  allUncertain:' · همه نامطمئن', dashedList:' · نقطه‌چین: ',
+  allUncertain:' · همه نامطمئن', dashedList:" · نامطمئن: ",
   dExport:'ذخیرهٔ رونوشت در فایل', dImport:'بازیابی از فایل…', dAutoHead:'رونوشت‌های خودکار', dAuto:d=>`وضعیت ${d}`, dNoAuto:'هنوز رونوشت خودکاری نیست',
   tExported:'رونوشت ذخیره شد', tImported:'داده‌ها از فایل بازیابی شد', tAutoRestored:d=>`وضعیت ${d} بازیابی شد`,
   tBadFile:'این فایل شبیه رونوشت خط زمانی نیست',
@@ -908,7 +935,7 @@ function segHtml(item, s, nextX){
   const extra = (s.e <= TODAY ? ' past' : '') + (item.done ? ' done' : '') + (linking === s.id ? ' src' : '') + (liftedId === item.id ? ' lifted' : '') + (followIds.has(s.id) ? ' follows' : '');
   const visL = Math.max(L, 0), vis = Math.min(R, w) - visL, pad = 9;
   const dates = `${fmtM(s.s)} – ${fmtM(s.e-1)}`;
-  const name = nm(item) + (s.label ? ' · ' + s.label : ''), nW = textW(name, NAME_FONT), dW = textW(dates, DATE_FONT);
+  const name = s.label || nm(item), nW = textW(name, NAME_FONT), dW = textW(dates, DATE_FONT);
   const dur = durText(s.s, s.e), uW = textW(dur, DUR_FONT) + 12;
   const ck = `<i class="ck${item.done ? ' on' : ''}" data-check="1" title="${esc(item.done ? T.mUndone : T.mDone)}"></i>`, cW = 21;
   let inside = '', above = '';
@@ -959,10 +986,17 @@ function linksSvg(t, rows){
     const x1 = X(A.seg.e), x2 = X(B.seg.s), y1 = A.item.row*LH + BAR_TOP + BAR_H/2, y2 = B.item.row*LH + BAR_TOP + BAR_H/2;
     if ((x1 < -400 && x2 < -400) || (x1 > w+400 && x2 > w+400)) continue;
     const bad = B.seg.s < A.seg.e;
+    /* Arrows never run through a bar: a straight line only when nothing sits between the two on the same track,
+       otherwise the long horizontal part travels along the thin gap between tracks. */
+    const sameRow = A.item.row === B.item.row;
+    const blocked = sameRow && t.items.some(it => it.row === A.item.row && it.segs.some(sg => sg !== A.seg && sg !== B.seg && sg.s < B.seg.s && sg.e > A.seg.e));
     let d;
-    if (y1 === y2 && x2 - x1 >= 10) d = `M${x1+1} ${y1} H${x2-3}`;
-    else if (y1 !== y2 && x2 - x1 >= 18){ const xm = Math.max(x1 + 8, x2 - 10); d = `M${x1+1} ${y1} H${xm} V${y2} H${x2-3}`; }
-    else { const ym = y1 + (y2 > y1 ? 1 : -1) * LH / 2; d = `M${x1+1} ${y1} H${x1+8} V${ym} H${x2-10} V${y2} H${x2-3}`; }
+    if (sameRow && !blocked && x2 - x1 >= 10) d = `M${x1+1} ${y1} H${x2-3}`;
+    else {
+      const gap = y2 > y1 ? B.item.row * LH + 1 : y2 < y1 ? A.item.row * LH + 1 : (A.item.row + 1) * LH - 1;
+      const xa = x1 + 8, xb = x2 - 10;
+      d = `M${x1+1} ${y1} H${xa} V${gap} H${xb} V${y2} H${x2-3}`;
+    }
     paths += `<path d="${d}" class="${bad?'bad':''}" marker-end="url(#${bad?'mb':'ma'})"></path>`;
   }
   return `<svg id="links" width="${w}" height="${hgt}" viewBox="0 0 ${w} ${hgt}" aria-hidden="true"><defs>` +
@@ -1002,8 +1036,17 @@ function applyLang(){
   $('thLight').setAttribute('aria-label', T.themeLight); $('thLight').title = T.themeLight;
   $('thDark').setAttribute('aria-label', T.themeDark); $('thDark').title = T.themeDark;
   $('dataBtn').setAttribute('aria-label', T.dataAria); $('dataBtn').title = T.dataAria;
-  $('helpBtn').setAttribute('aria-label', T.helpAria); $('helpBtn').title = T.helpAria;
+  $('helpBtn').setAttribute('aria-label', T.helpAria); $('addBtn').setAttribute('aria-label', T.newTask); $('addBtn').title = T.newTask; $('helpBtn').title = T.helpAria;
   $('helpList').innerHTML = T.help.map(([a,b]) => `<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join('');
+  $('legend').innerHTML = [
+    ['<span class="lg-bar"><i class="pc solid first last"></i></span>', T.lgSolid],
+    ['<span class="lg-bar"><i class="pc dash first last"></i></span>', T.lgDash],
+    ['<span class="lg-bar"><i class="pc solid first"></i><i class="pc dash last"></i></span>', T.lgMixed],
+    ['<i class="ck on" style="--c:var(--c3)"></i>', T.lgDone],
+    ['<svg width="34" height="12" viewBox="0 0 34 12"><path d="M1 6H30" stroke="var(--link)" stroke-width="1.5" fill="none"/><path d="M27 2l5 4-5 4z" fill="var(--link)"/></svg>', T.lgLink],
+    ['<svg width="34" height="12" viewBox="0 0 34 12"><path d="M1 6H30" stroke="var(--warn)" stroke-width="1.5" stroke-dasharray="4 3" fill="none"/><path d="M27 2l5 4-5 4z" fill="var(--warn)"/></svg>', T.lgBad],
+    ['<span class="lg-past"></span>', T.lgPast],
+  ].map(([icon, text]) => `<div class="lg"><span class="lg-i">${icon}</span><span>${esc(text)}</span></div>`).join('');
   setStatus(statusKind);
   if (typeof syncAccountUI === 'function') syncAccountUI();
   renderTabs(); schedule();
@@ -1098,7 +1141,7 @@ function openMenu(items, cx, cy, heading){
   menu.innerHTML = (heading ? `<div class="mh">${esc(heading)}</div>` : '') +
     items.map((it,i) => it === '-' ? '<hr>' : it.head ? `<div class="mh">${esc(it.head)}</div>` :
       `<button role="menuitem" data-i="${i}" class="${it.danger?'danger':''}"${it.disabled?' disabled':''}>${esc(it.label)}</button>`).join('');
-  menu.hidden = false;
+  menu.classList.remove('wide'); menu.hidden = false;
   const mw = menu.offsetWidth, mh = menu.offsetHeight;
   menu.style.left = clamp(cx, 8, innerWidth - mw - 8) + 'px';
   menu.style.top = (cy + mh > innerHeight - 8 ? Math.max(8, cy - mh) : cy) + 'px';
@@ -1186,7 +1229,9 @@ function splitSeg(item, seg, day, stage){
   if (stage){ renderBoard(); requestAnimationFrame(() => renameStage(second.id)); }
   else { schedule(); toast(T.tBreakAdded, true); }
 }
-/* A period can carry its own stage name: "Фотосесії · за гроші". */
+/* Rename what you see: a period with its own name renames that period; otherwise the whole task. */
+function renameAt(item, seg){ if (seg.label) renameStage(seg.id); else renameItem(item.id, seg.id); }
+/* A period can carry its own name, e.g. "Фотосесії безкоштовно" → "Фотосесії за гроші". */
 function renameStage(segId){
   const f = segById(segId); if (!f) return;
   let el = rowsEl.querySelector(`.seg[data-seg="${segId}"]`);
@@ -1194,7 +1239,7 @@ function renameStage(segId){
   if (!el) return;
   const rc = el.getBoundingClientRect(), br = body.getBoundingClientRect();
   const left = clamp(rc.left, br.left + 4, br.right - 230), width = clamp(Math.min(rc.right, br.right - 4) - left, 230, 320);
-  edit({left, top:rc.top - 4, width, height:rc.height + 8}, f.seg.label || '', v => { pushUndo(); f.seg.label = v; persist(); schedule(); }, `${nm(f.item)} · ${T.stageName}`);
+  edit({left, top:rc.top - 4, width, height:rc.height + 8}, f.seg.label || nm(f.item), v => { pushUndo(); f.seg.label = v; persist(); schedule(); });
 }
 /* Move one period out into a task of its own, with its own name and colour. */
 function detachSeg(item, seg){
@@ -1303,7 +1348,6 @@ $('dataBtn').onclick = async () => {
 function segMenu(info, cx, cy){
   const f = segById(info.segId); if (!f) return;
   const {seg, item} = f, day = dayAt(info.px), t = tab();
-  const items = [{label:T.mDates, run:() => openDates(item, seg)}];
   const ps = pieces(seg), dayR = Math.round(day);
   const pi = Math.max(0, ps.findIndex(p => day >= p.a && day < p.b)), piece = ps[pi];
   const restyle = fn => () => {
@@ -1311,24 +1355,49 @@ function segMenu(info, cx, cy){
     const moved = shiftFollowers([seg.id], seg.e - oldE); settle(item, ...moved); persist(); schedule();
   };
   const extend = dash => restyle(list => { const len = Math.max(30, Math.round(view.days/5)); list.push({a:seg.e, b:seg.e + len, dash}); seg.e += len; });
-  items.push('-', {label:T.mExtDash, run:extend(true)}, {label:T.mExtSolid, run:extend(false)});
+  const inside = day > seg.s + 2 && day < seg.e - 2;
+
+  const dates = [{label:T.mDates, run:() => openDates(item, seg)}];
+  if (inside) dates.push({label:T.mNewStage(fmt(dayR)), run:() => splitSeg(item, seg, day, true)}, {label:T.mBreak(fmt(dayR)), run:() => splitSeg(item, seg, day)});
+  dates.push({label:T.mAddPeriod, run:() => addPeriod(item)});
+
+  const line = [{label:T.mExtDash, run:extend(true)}, {label:T.mExtSolid, run:extend(false)}];
   if (dayR > piece.a && dayR < piece.b)
-    items.push({label:piece.dash ? T.mSolidFrom(fmt(dayR)) : T.mDashFrom(fmt(dayR)), run:restyle(list => { const p = list[pi]; list.splice(pi, 1, {a:p.a, b:dayR, dash:p.dash}, {a:dayR, b:p.b, dash:!p.dash}); })});
-  if (ps.length > 1) items.push({label:piece.dash ? T.mPieceSolid : T.mPieceDash, run:restyle(list => { list[pi].dash = !list[pi].dash; })});
-  if (ps.some(p => p.dash)) items.push({label:T.mAllSolid, run:restyle(list => { list.splice(0, list.length, {a:seg.s, b:seg.e, dash:false}); })});
-  if (ps.some(p => !p.dash)) items.push({label:T.mAllDash, run:restyle(list => { list.splice(0, list.length, {a:seg.s, b:seg.e, dash:true}); })});
-  items.push('-');
-  if (day > seg.s + 2 && day < seg.e - 2) items.push({label:T.mNewStage(fmt(dayR)), run:() => splitSeg(item, seg, day, true)}, {label:T.mBreak(fmt(dayR)), run:() => splitSeg(item, seg, day)});
-  items.push({label:T.mAddPeriod, run:() => addPeriod(item)});
-  items.push('-', {label:T.mLink, run:() => { linking = seg.id; showLinkChip(); schedule(); }});
-  if (t.links.some(l => l.a === seg.id || l.b === seg.id)) items.push({label:T.mUnlink, run:() => { pushUndo(); t.links = t.links.filter(l => l.a !== seg.id && l.b !== seg.id); persist(); schedule(); }});
-  items.push('-', {label:item.done ? T.mUndone : T.mDone, run:() => toggleDone(item)}, {label:T.mRenameTask, run:() => renameItem(item.id, seg.id)});
-  if (item.segs.length > 1 || seg.label) items.push({label:seg.label ? T.mStageRename : T.mStageAdd, run:() => renameStage(seg.id)});
-  if (seg.label) items.push({label:T.mStageClear, run:() => { pushUndo(); delete seg.label; persist(); schedule(); }});
-  if (item.segs.length > 1) items.push({label:T.mDetach, run:() => detachSeg(item, seg)});
-  if (item.segs.length > 1) items.push({label:T.mDelPeriod, danger:true, run:() => deleteSeg(item, seg)});
-  items.push({label:T.mDelTask, danger:true, run:() => deleteItem(item)});
-  openMenu(items, cx, cy, `${nm(item)} · ${fmtM(seg.s)} – ${fmtM(seg.e-1)}`);
+    line.push({label:piece.dash ? T.mSolidFrom(fmt(dayR)) : T.mDashFrom(fmt(dayR)), run:restyle(list => { const p = list[pi]; list.splice(pi, 1, {a:p.a, b:dayR, dash:p.dash}, {a:dayR, b:p.b, dash:!p.dash}); })});
+  if (ps.length > 1) line.push({label:piece.dash ? T.mPieceSolid : T.mPieceDash, run:restyle(list => { list[pi].dash = !list[pi].dash; })});
+  if (ps.some(p => p.dash)) line.push({label:T.mAllSolid, run:restyle(list => { list.splice(0, list.length, {a:seg.s, b:seg.e, dash:false}); })});
+  if (ps.some(p => !p.dash)) line.push({label:T.mAllDash, run:restyle(list => { list.splice(0, list.length, {a:seg.s, b:seg.e, dash:true}); })});
+
+  const links = [{label:T.mLink, run:() => { linking = seg.id; showLinkChip(); schedule(); }}];
+  if (t.links.some(l => l.a === seg.id || l.b === seg.id)) links.push({label:T.mUnlink, run:() => { pushUndo(); t.links = t.links.filter(l => l.a !== seg.id && l.b !== seg.id); persist(); schedule(); }});
+
+  const task = [{label:item.done ? T.mUndone : T.mDone, run:() => toggleDone(item)}, {label:T.mRename, run:() => renameAt(item, seg)}];
+  if (item.segs.length > 1 && !seg.label) task.push({label:T.mStageAdd, run:() => renameStage(seg.id)});
+  if (seg.label) task.push({label:T.mStageClear, run:() => { pushUndo(); delete seg.label; persist(); schedule(); }});
+  if (item.segs.length > 1) task.push({label:T.mDetach, run:() => detachSeg(item, seg)});
+  const danger = [];
+  if (item.segs.length > 1) danger.push({label:T.mDelPeriod, danger:true, run:() => deleteSeg(item, seg)});
+  danger.push({label:T.mDelTask, danger:true, run:() => deleteItem(item)});
+
+  openGroupedMenu([
+    [{head:T.secDates, items:dates}, {head:T.secLine, items:line}],
+    [{head:T.secTask, items:task}, {head:T.secLinks, items:links}, {items:danger}],
+  ], cx, cy, `${seg.label || nm(item)} · ${fmtM(seg.s)} – ${fmtM(seg.e-1)}`);
+}
+/* Two columns of titled groups on wide screens, one column on phones. */
+function openGroupedMenu(columns, cx, cy, heading){
+  const flat = [];
+  const groupHtml = g => `<div class="mgrp">${g.head ? `<div class="ms">${esc(g.head)}</div>` : '<hr>'}` +
+    g.items.map(it => { flat.push(it); return `<button role="menuitem" data-i="${flat.length-1}" class="${it.danger?'danger':''}">${esc(it.label)}</button>`; }).join('') + `</div>`;
+  closeEditor(true);
+  menu.innerHTML = (heading ? `<div class="mh">${esc(heading)}</div>` : '') +
+    `<div class="mcols">${columns.map(col => `<div class="mcol">${col.map(groupHtml).join('')}</div>`).join('')}</div>`;
+  menu.classList.add('wide'); menu.hidden = false;
+  const mw = menu.offsetWidth, mh = menu.offsetHeight;
+  menu.style.left = clamp(cx, 8, innerWidth - mw - 8) + 'px';
+  menu.style.top = clamp(cy + mh > innerHeight - 8 ? cy - mh : cy, 8, Math.max(8, innerHeight - mh - 8)) + 'px';
+  menu.onclick = e => { const b = e.target.closest('button[data-i]'); if (!b) return; const it = flat[+b.dataset.i]; closeMenu(); it.run(); };
+  const first = menu.querySelector('button'); first && first.focus({preventScroll:true});
 }
 function contextFor(info, cx, cy){
   if (info.kind === 'seg') segMenu(info, cx, cy);
@@ -1464,7 +1533,7 @@ function tap(p, e){
     return;
   }
   if (!isDouble) return;
-  if (i.kind === 'seg'){ const f = segById(i.segId); if (f){ if (f.item.segs.length > 1) renameStage(i.segId); else renameItem(f.item.id, i.segId); } }
+  if (i.kind === 'seg'){ const f = segById(i.segId); f && renameAt(f.item, f.seg); }
   else if (i.kind === 'row' || i.kind === 'empty') addTask(i.row, dayAt(i.px));
 }
 board.addEventListener('contextmenu', e => {
