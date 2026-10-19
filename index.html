@@ -162,6 +162,11 @@ header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
 .seg:hover .h-l::after,.seg:hover .h-r::after{opacity:.8}
 .board.linking .seg,.board.linking .above{cursor:crosshair}
 .seg.src{box-shadow:0 0 0 3px var(--accent)}
+.seg.sel{box-shadow:0 0 0 2px var(--surface),0 0 0 4px var(--accent);z-index:2}
+.selbar{position:absolute;left:50%;top:calc(var(--ruler-h) + 8px);transform:translateX(-50%);z-index:30;background:var(--fg);color:var(--surface);border-radius:20px;
+  padding:5px 6px 5px 14px;display:flex;align-items:center;gap:6px;box-shadow:var(--shadow);font-size:13px;white-space:nowrap;max-width:calc(100% - 24px);overflow-x:auto}
+.selbar button{border:0;background:color-mix(in srgb,var(--surface) 16%,transparent);color:inherit;border-radius:14px;padding:5px 11px;cursor:pointer;font-weight:600;font-variant-numeric:tabular-nums}
+.selbar button:hover{background:color-mix(in srgb,var(--surface) 28%,transparent)}
 .edge{position:absolute;top:22px;height:24px;max-width:42%;display:flex;align-items:center;gap:4px;padding:0 9px;border-radius:12px;cursor:pointer;
   border:1px solid color-mix(in srgb,var(--c) 45%,var(--line));background:var(--surface);color:var(--fg);font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;z-index:4;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .edge span{overflow:hidden;text-overflow:ellipsis;unicode-bidi:plaintext}
@@ -174,6 +179,7 @@ header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
 #links{position:absolute;left:0;top:0;pointer-events:none;overflow:hidden}
 #links path{fill:none;stroke:var(--link);stroke-width:1.5;stroke-linejoin:round;stroke-linecap:round}
 #links path.bad{stroke:var(--warn);stroke-dasharray:4 3}
+#links path.seam{fill:var(--link);stroke:none}
 #links .ah{fill:var(--link)} #links .ah-bad{fill:var(--warn)}
 
 /* Floating UI */
@@ -215,6 +221,11 @@ header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
 .pr input{min-width:0}
 .pr .rm{width:30px;height:34px;border:0;background:transparent;color:var(--muted);cursor:pointer;border-radius:7px;font-size:16px}
 .pr .rm:hover{background:var(--surface-2);color:var(--warn)}
+.endrow{display:flex;gap:6px;align-items:center}
+.endrow input{flex:1;min-width:0}
+.clr{width:34px;height:36px;border:1px solid var(--line);background:var(--surface-2);color:var(--muted);border-radius:8px;cursor:pointer}
+.clr:hover{color:var(--warn)}
+.endnote{color:var(--accent)!important;font-weight:500!important}
 .add-piece{align-self:flex-start;border:0;background:transparent;color:var(--accent);cursor:pointer;padding:4px 2px;font-weight:500;font-size:13px}
 .dialog .actions{display:flex;justify-content:flex-end;gap:8px;margin-top:4px}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
@@ -267,6 +278,7 @@ header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
 
   <section class="board" id="board">
     <div class="ruler" id="ruler"></div>
+    <div class="selbar" id="selbar" hidden></div>
     <div class="body" id="body">
       <canvas id="grid"></canvas>
       <div class="scroller" id="scroller"><div class="rows" id="rows"></div></div>
@@ -293,7 +305,7 @@ header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-width:0}
     <h2 data-t="dlgTitle"></h2>
     <p class="sub" id="dlgName"></p>
     <label><span data-t="start"></span><input type="date" id="fStart" required></label>
-    <label><span data-t="end"></span><input type="date" id="fEnd" required></label>
+    <label><span data-t="end"></span><span class="endrow"><input type="date" id="fEnd"><button type="button" class="clr" id="fEndClear">✕</button></span><small class="endnote" id="fEndNote" data-t="noEnd" hidden></small></label>
     <fieldset><legend data-t="lineLook"></legend><div class="pieces" id="fPieces"></div>
       <button type="button" class="add-piece" id="fAddPiece" data-t="addStyle"></button></fieldset>
     <p class="err" id="fErr" hidden></p>
@@ -309,6 +321,8 @@ en: {
   mDone:"Mark as done", mUndone:"Mark as not done",
   stageName:"stage name", mNewStage:d=>`New stage from ${d}`, mRenameTask:"Rename task", mStageAdd:"Give this period its own name", mStageRename:"Rename this stage", mStageClear:"Use the task’s name again", mDetach:"Make it a separate task",
   secDates:"Dates", secLine:"Line · dashed = uncertain", secLinks:"Links", secTask:"Task", lgTitle:"What the lines mean", lgSolid:"Solid — a firm plan", lgDash:"Dash-dot — uncertain: doubts, it may not happen, dates are rough", lgMixed:"Solid, then dashed — sure at first, then less certain", lgDone:"Check — done", lgLink:"Arrow — what depends on what", lgBad:"Red dashed arrow — the plan doesn’t add up: the next step starts too early", lgPast:"Shaded background — the past",
+  selCount:n=>`Selected: ${n}`, selEarlier:"−1 mo", selLater:"+1 mo", selClear:"Clear selection", mSelect:"Add to selection", mUnselect:"Remove from selection", selDone:"Mark selected as done", selLaterLong:"Move selected 1 month later", selEarlierLong:"Move selected 1 month earlier",
+  openPill:"ongoing", noEnd:"No end date — ongoing", mNoEnd:"No end date", mSetEnd:"Set an end date",
   name:'English', appName:'Horizon', tabsAria:'Scenarios', newOrCopy:'New or copy', addTask:'+ Task',
   z:['3 mo','6 mo','1 yr','2 yrs','5 yrs'], today:'Today', todayPill:'today',
   stSaving:'Saving…', stSaved:'Saved', stLocal:'This browser only',
@@ -320,6 +334,7 @@ en: {
     ['2× click','empty space — a new task right there'],
     ['drag','a bar sideways — new dates; up or down — another track'],
     ['drag an edge','change the length; the mark inside — where the line turns dashed or solid again'],
+    ['Ctrl/⌘ + click','select several bars; drag any of them to move them all'],
     ['Shift + drag','move all periods of the task together'],
     ['Alt + drag','move without the linked tasks that follow'],
     ['right click','dates, dashed line, break, another period, links, delete (on a phone — long press)'],
@@ -356,6 +371,8 @@ uk: {
   mDone:"Позначити виконаною", mUndone:"Зняти позначку «виконано»",
   stageName:"назва етапу", mNewStage:d=>`Новий етап з ${d}`, mRenameTask:"Перейменувати задачу", mStageAdd:"Окрема назва для цього періоду", mStageRename:"Перейменувати етап", mStageClear:"Повернути спільну назву", mDetach:"Зробити окремою задачею",
   secDates:"Дати", secLine:"Лінія · пунктир = непевно", secLinks:"Зв’язки", secTask:"Задача", lgTitle:"Що означають лінії", lgSolid:"Суцільна — впевнений план", lgDash:"Штрихпунктир — непевно: сумніви, може не вийти, дати приблизні", lgMixed:"Спершу суцільна, далі пунктир — спочатку впевнено, потім менш певно", lgDone:"Галочка — виконано", lgLink:"Стрілка — що від чого залежить", lgBad:"Червона пунктирна стрілка — план не сходиться: наступний крок починається зарано", lgPast:"Затінене тло — минуле",
+  selCount:n=>`Вибрано: ${n}`, selEarlier:"−1 міс", selLater:"+1 міс", selClear:"Зняти виділення", mSelect:"Додати до вибраних", mUnselect:"Прибрати з вибраних", selDone:"Позначити вибрані виконаними", selLaterLong:"Посунути вибрані на місяць пізніше", selEarlierLong:"Посунути вибрані на місяць раніше",
+  openPill:"без кінця", noEnd:"Без дати кінця — триває", mNoEnd:"Без дати кінця", mSetEnd:"Задати дату кінця",
   name:'Українська', appName:'Обрій', tabsAria:'Сценарії', newOrCopy:'Новий або копія', addTask:'+ Задача',
   z:['3 міс','6 міс','1 рік','2 роки','5 років'], today:'Сьогодні', todayPill:'сьогодні',
   stSaving:'Зберігаю…', stSaved:'Збережено', stLocal:'Лише в цьому браузері',
@@ -367,6 +384,7 @@ uk: {
     ['2× клік','по порожньому місцю — нова задача саме тут'],
     ['тягнути','змійку вбік — інші дати; вгору чи вниз — на іншу доріжку'],
     ['за край','змінити довжину; позначка всередині — місце, де лінія стає пунктиром або знову суцільною'],
+    ['Ctrl/⌘ + клік','вибрати кілька змійок; потягніть будь-яку — посунуться всі'],
     ['Shift + тягнути','зсунути всі періоди задачі разом'],
     ['Alt + тягнути','посунути без пов’язаних задач, що йдуть далі'],
     ['права кнопка','дати, пунктир, перерва, ще один період, зв’язок, видалення (на телефоні — довгий дотик)'],
@@ -403,6 +421,8 @@ es: {
   mDone:"Marcar como hecha", mUndone:"Desmarcar como hecha",
   stageName:"nombre de la etapa", mNewStage:d=>`Nueva etapa desde el ${d}`, mRenameTask:"Cambiar nombre de la tarea", mStageAdd:"Dar un nombre propio a este periodo", mStageRename:"Cambiar nombre de la etapa", mStageClear:"Volver al nombre de la tarea", mDetach:"Convertir en tarea aparte",
   secDates:"Fechas", secLine:"Línea · discontinua = incierto", secLinks:"Vínculos", secTask:"Tarea", lgTitle:"Qué significan las líneas", lgSolid:"Continua — un plan firme", lgDash:"Discontinua — incierto: dudas, puede no salir, fechas aproximadas", lgMixed:"Continua y luego discontinua — seguro al principio, después menos", lgDone:"Marca — hecho", lgLink:"Flecha — qué depende de qué", lgBad:"Flecha roja discontinua — el plan no cuadra: el siguiente paso empieza demasiado pronto", lgPast:"Fondo sombreado — el pasado",
+  selCount:n=>`Seleccionadas: ${n}`, selEarlier:"−1 mes", selLater:"+1 mes", selClear:"Quitar selección", mSelect:"Añadir a la selección", mUnselect:"Quitar de la selección", selDone:"Marcar las seleccionadas como hechas", selLaterLong:"Mover las seleccionadas 1 mes después", selEarlierLong:"Mover las seleccionadas 1 mes antes",
+  openPill:"sin fin", noEnd:"Sin fecha de fin — en curso", mNoEnd:"Sin fecha de fin", mSetEnd:"Poner fecha de fin",
   name:'Español', appName:'Horizonte', tabsAria:'Escenarios', newOrCopy:'Nuevo o copia', addTask:'+ Tarea',
   z:['3 m','6 m','1 año','2 años','5 años'], today:'Hoy', todayPill:'hoy',
   stSaving:'Guardando…', stSaved:'Guardado', stLocal:'Solo en este navegador',
@@ -414,6 +434,7 @@ es: {
     ['2× clic','en un espacio vacío — nueva tarea justo ahí'],
     ['arrastrar','la barra a los lados — otras fechas; arriba o abajo — otra pista'],
     ['por el borde','cambiar la duración; la marca interior — donde la línea pasa a discontinua o vuelve a ser continua'],
+    ['Ctrl/⌘ + clic','seleccionar varias barras; arrastra cualquiera para mover todas'],
     ['Shift + arrastrar','mover juntos todos los periodos de la tarea'],
     ['Alt + arrastrar','mover sin las tareas vinculadas que siguen'],
     ['clic derecho','fechas, línea discontinua, pausa, otro periodo, vínculos, borrar (en el móvil — mantener pulsado)'],
@@ -450,6 +471,8 @@ zh: {
   mDone:"标记为已完成", mUndone:"取消已完成",
   stageName:"阶段名称", mNewStage:d=>`从 ${d} 起新阶段`, mRenameTask:"重命名任务", mStageAdd:"为此时段单独命名", mStageRename:"重命名此阶段", mStageClear:"恢复任务名称", mDetach:"拆分为单独任务",
   secDates:"日期", secLine:"线条 · 虚线 = 不确定", secLinks:"关联", secTask:"任务", lgTitle:"线条的含义", lgSolid:"实线 — 确定的计划", lgDash:"点划线 — 不确定：有疑虑、可能不成、日期大致", lgMixed:"先实线后虚线 — 起初确定，之后不那么确定", lgDone:"勾 — 已完成", lgLink:"箭头 — 依赖关系", lgBad:"红色虚线箭头 — 计划不合理：下一步开始得太早", lgPast:"阴影背景 — 过去",
+  selCount:n=>`已选：${n}`, selEarlier:"−1个月", selLater:"+1个月", selClear:"取消选择", mSelect:"加入选择", mUnselect:"从选择中移除", selDone:"将所选标记为已完成", selLaterLong:"所选推迟 1 个月", selEarlierLong:"所选提前 1 个月",
+  openPill:"持续中", noEnd:"无结束日期 — 持续中", mNoEnd:"不设结束日期", mSetEnd:"设置结束日期",
   name:'中文', appName:'地平线', tabsAria:'方案', newOrCopy:'新建或复制', addTask:'+ 任务',
   z:['3个月','6个月','1年','2年','5年'], today:'今天', todayPill:'今天',
   stSaving:'正在保存…', stSaved:'已保存', stLocal:'仅存于此浏览器',
@@ -461,6 +484,7 @@ zh: {
     ['双击','空白处 — 在此处新建任务'],
     ['拖动','条形左右 — 改变日期；上下 — 换到另一条轨道'],
     ['拖动边缘','改变时长；内部标记 — 线条变为虚线或恢复实线的位置'],
+    ['Ctrl/⌘ + 点击','选择多个条形；拖动其中任意一个即可一起移动'],
     ['Shift + 拖动','一起移动任务的所有时段'],
     ['Alt + 拖动','移动时不带后续的关联任务'],
     ['右键','日期、虚线、暂停、新时段、关联、删除（手机上长按）'],
@@ -497,6 +521,8 @@ ko: {
   mDone:"완료로 표시", mUndone:"완료 표시 해제",
   stageName:"단계 이름", mNewStage:d=>`${d}부터 새 단계`, mRenameTask:"할 일 이름 바꾸기", mStageAdd:"이 기간에 별도 이름 붙이기", mStageRename:"단계 이름 바꾸기", mStageClear:"할 일 이름으로 되돌리기", mDetach:"별도 할 일로 분리",
   secDates:"날짜", secLine:"선 · 점선 = 불확실", secLinks:"연결", secTask:"할 일", lgTitle:"선의 의미", lgSolid:"실선 — 확실한 계획", lgDash:"일점쇄선 — 불확실: 망설임, 안 될 수도 있음, 대략적인 날짜", lgMixed:"실선 다음 점선 — 처음엔 확실, 이후엔 덜 확실", lgDone:"체크 — 완료", lgLink:"화살표 — 무엇이 무엇에 달려 있는지", lgBad:"빨간 점선 화살표 — 계획이 맞지 않음: 다음 단계가 너무 일찍 시작됨", lgPast:"음영 배경 — 과거",
+  selCount:n=>`선택됨: ${n}`, selEarlier:"−1개월", selLater:"+1개월", selClear:"선택 해제", mSelect:"선택에 추가", mUnselect:"선택에서 제거", selDone:"선택한 항목 완료로 표시", selLaterLong:"선택한 항목 1개월 뒤로", selEarlierLong:"선택한 항목 1개월 앞으로",
+  openPill:"계속", noEnd:"종료일 없음 — 계속 진행", mNoEnd:"종료일 없음", mSetEnd:"종료일 설정",
   name:'한국어', appName:'지평선', tabsAria:'시나리오', newOrCopy:'새로 만들기 또는 복사', addTask:'+ 할 일',
   z:['3개월','6개월','1년','2년','5년'], today:'오늘', todayPill:'오늘',
   stSaving:'저장 중…', stSaved:'저장됨', stLocal:'이 브라우저에만',
@@ -508,6 +534,7 @@ ko: {
     ['더블 클릭','빈 곳 — 바로 그곳에 새 할 일'],
     ['드래그','막대를 옆으로 — 날짜 변경, 위아래로 — 다른 트랙으로'],
     ['가장자리 드래그','기간 변경, 안쪽 표시 — 선이 점선이 되거나 다시 실선이 되는 지점'],
+    ['Ctrl/⌘ + 클릭','막대 여러 개 선택, 아무거나 드래그하면 함께 이동'],
     ['Shift + 드래그','할 일의 모든 기간을 함께 이동'],
     ['Alt + 드래그','뒤따르는 연결된 할 일 없이 이동'],
     ['오른쪽 클릭','날짜, 점선, 휴식, 기간 추가, 연결, 삭제 (휴대폰에서는 길게 누르기)'],
@@ -544,6 +571,8 @@ fa: {
   mDone:"علامت انجام‌شده", mUndone:"برداشتن علامت انجام‌شده",
   stageName:"نام مرحله", mNewStage:d=>`مرحلهٔ جدید از ${d}`, mRenameTask:"تغییر نام کار", mStageAdd:"نام جداگانه برای این دوره", mStageRename:"تغییر نام مرحله", mStageClear:"بازگشت به نام کار", mDetach:"تبدیل به کار جداگانه",
   secDates:"تاریخ‌ها", secLine:"خط · نقطه‌چین = نامطمئن", secLinks:"پیوندها", secTask:"کار", lgTitle:"معنای خط‌ها", lgSolid:"پیوسته — برنامهٔ قطعی", lgDash:"خط‌ونقطه — نامطمئن: تردید، شاید نشود، تاریخ‌ها تقریبی", lgMixed:"اول پیوسته، بعد نقطه‌چین — ابتدا مطمئن، بعد کمتر", lgDone:"تیک — انجام شد", lgLink:"فلش — چه چیزی به چه چیزی وابسته است", lgBad:"فلش قرمز نقطه‌چین — برنامه جور نیست: گام بعدی زود شروع می‌شود", lgPast:"پس‌زمینهٔ سایه‌دار — گذشته",
+  selCount:n=>`انتخاب‌شده: ${n}`, selEarlier:"−۱ ماه", selLater:"+۱ ماه", selClear:"لغو انتخاب", mSelect:"افزودن به انتخاب", mUnselect:"حذف از انتخاب", selDone:"علامت انجام‌شده برای انتخاب‌ها", selLaterLong:"انتخاب‌ها یک ماه دیرتر", selEarlierLong:"انتخاب‌ها یک ماه زودتر",
+  openPill:"بی‌پایان", noEnd:"بدون تاریخ پایان — ادامه دارد", mNoEnd:"بدون تاریخ پایان", mSetEnd:"تعیین تاریخ پایان",
   name:'فارسی', appName:'افق', tabsAria:'سناریوها', newOrCopy:'جدید یا رونوشت', addTask:'+ کار',
   z:['۳ ماه','۶ ماه','۱ سال','۲ سال','۵ سال'], today:'امروز', todayPill:'امروز',
   stSaving:'در حال ذخیره…', stSaved:'ذخیره شد', stLocal:'فقط در این مرورگر',
@@ -555,6 +584,7 @@ fa: {
     ['دوبار کلیک','روی جای خالی — کار جدید همان‌جا'],
     ['کشیدن','نوار به چپ و راست — تاریخ‌های دیگر؛ بالا یا پایین — مسیر دیگر'],
     ['کشیدن لبه','تغییر طول؛ نشانهٔ داخلی — جایی که خط نقطه‌چین یا دوباره پیوسته می‌شود'],
+    ['Ctrl/⌘ + کلیک','انتخاب چند نوار؛ هر کدام را بکشید، همه جابه‌جا می‌شوند'],
     ['Shift + کشیدن','جابه‌جایی همهٔ دوره‌های کار با هم'],
     ['Alt + کشیدن','جابه‌جایی بدون کارهای وابستهٔ بعدی'],
     ['کلیک راست','تاریخ‌ها، نقطه‌چین، وقفه، دورهٔ دیگر، پیوند، حذف (در تلفن — نگه داشتن طولانی)'],
@@ -632,7 +662,13 @@ makeFormats();
 const fmt = n => F.day(n), fmtM = n => F.my(n);
 const daysText = n => T.days(n, F.num(n));
 /* How long a period lasts, in calendar terms: "10 дн", "3 тиж", "4 міс", "1 р 3 міс" */
+/* A period with no planned end ("ongoing") keeps its end far in the future, so tracks, styles and collisions just work. */
+const FAR = dn(2200, 0, 1);
+const spanM = (a, last) => last.open ? `${fmtM(a)} →` : `${fmtM(a)} – ${fmtM(last.e - 1)}`;
+function openEnd(seg){ seg.open = true; seg.e = FAR; fixMarks(seg); }
+function closeEnd(seg, e){ delete seg.open; seg.e = Math.max(seg.s + 1, e); fixMarks(seg); }
 function durText(s, e){
+  if (e >= FAR) return T.openPill;
   const days = e - s, D = T.dur;
   if (days < 14) return D.d(F.num(days));
   if (days < 56) return D.w(F.num(Math.round(days / 7)));
@@ -667,7 +703,7 @@ function styleText(seg){
   const ps = pieces(seg), dashed = ps.filter(p => p.dash);
   if (!dashed.length) return '';
   if (dashed.length === ps.length) return T.allUncertain;
-  return T.dashedList + dashed.map(p => `${fmt(p.a)} – ${fmt(p.b-1)}`).join(', ');
+  return T.dashedList + dashed.map(p => p.b >= FAR ? `${fmt(p.a)} →` : `${fmt(p.a)} – ${fmt(p.b-1)}`).join(', ');
 }
 const copySeg = s => ({...s, m:[...s.m]});
 
@@ -696,7 +732,8 @@ function sampleTab(key){
   const {y, m} = dd(TODAY), M = k => dn(y, m + k, 1);
   const mk = (k,c,row,segs) => ({id:uid(), k, name:T.names[k], c, row, segs:segs.map(([s,e,kk]) => ({id:uid(), s, e, ...fromK(s,e,kk)}))});
   const diploma = mk('diploma',0,0,[[M(-1),M(5),M(4)]]), license = mk('license',3,1,[[M(0),M(3),M(2)]]), search = mk('jobSearch',1,1,[[M(5),M(8),M(7)]]),
-        job = mk('newJob',2,0,[[M(8),M(32),M(20)]]), car = mk('buyCar',4,1,[[M(16),M(18),M(16)]]), hobby = mk('hobby',7,2,[[M(5),M(36),M(24)]]);
+        job = mk('newJob',2,0,[[M(8),FAR,M(20)]]), car = mk('buyCar',4,1,[[M(16),M(18),M(16)]]), hobby = mk('hobby',7,2,[[M(5),M(36),M(24)]]);
+  job.segs[0].open = true;
   const f = it => it.segs[0].id;
   return {id:uid(), k:key, name:T[key], items:[diploma, license, search, job, car, hobby],
     links:[{a:f(diploma),b:f(search)},{a:f(search),b:f(job)},{a:f(job),b:f(car)}]};
@@ -720,7 +757,7 @@ function normalize(d){
       it.segs.forEach(s => {
         s.id = s.id || uid(); s.s = Math.round(s.s); s.e = Math.round(s.e); if (!(s.e > s.s)) s.e = s.s + 1;
         if (!Array.isArray(s.m)) Object.assign(s, fromK(s.s, s.e, Number.isFinite(s.k) ? s.k : s.e));
-        delete s.k; fixMarks(s);
+        delete s.k; if (s.open) s.e = FAR; else delete s.open; fixMarks(s);
       });
       it.segs.sort((a,b) => a.s - b.s);
     });
@@ -929,12 +966,12 @@ function drawGrid(){
 
 /* One period of a task. Name + dates sit inside when they fit; otherwise the name floats just above the bar. */
 function segHtml(item, s, nextX){
-  const w = trackW(), L = X(s.s), R = X(s.e);
+  const w = trackW(), L = X(s.s), R = s.open ? Math.max(X(s.s) + 4, w + 80) : X(s.e);
   if (R < -60 || L > w + 60) return '';
   const W = Math.max(R - L, 4), ps = pieces(s);
-  const extra = (s.e <= TODAY ? ' past' : '') + (item.done ? ' done' : '') + (linking === s.id ? ' src' : '') + (liftedId === item.id ? ' lifted' : '') + (followIds.has(s.id) ? ' follows' : '');
+  const extra = (s.e <= TODAY ? ' past' : '') + (item.done ? ' done' : '') + (selected.has(s.id) ? ' sel' : '') + (linking === s.id ? ' src' : '') + (liftedId === item.id ? ' lifted' : '') + (followIds.has(s.id) ? ' follows' : '');
   const visL = Math.max(L, 0), vis = Math.min(R, w) - visL, pad = 9;
-  const dates = `${fmtM(s.s)} – ${fmtM(s.e-1)}`;
+  const dates = s.open ? `${fmtM(s.s)} →` : `${fmtM(s.s)} – ${fmtM(s.e-1)}`;
   const name = s.label || nm(item), nW = textW(name, NAME_FONT), dW = textW(dates, DATE_FONT);
   const dur = durText(s.s, s.e), uW = textW(dur, DUR_FONT) + 12;
   const ck = `<i class="ck${item.done ? ' on' : ''}" data-check="1" title="${esc(item.done ? T.mUndone : T.mDone)}"></i>`, cW = 21;
@@ -946,15 +983,15 @@ function segHtml(item, s, nextX){
     const maxW = Math.max(60, (nextX ?? w + 400) - visL - 10);
     above = `<span class="above${s.e <= TODAY ? ' past' : ''}${item.done ? ' done' : ''}" data-seg="${s.id}" style="--c:var(--c${item.c%8});left:${visL}px;max-width:${maxW}px">${ck}<span>${esc(name)}<small> · ${esc(dur)}</small></span></span>`;
   }
-  const title = `${name} · ${fmt(s.s)} – ${fmt(s.e-1)} · ${dur}` + styleText(s);
+  const title = (s.open ? `${name} · ${fmt(s.s)} → · ${dur}` : `${name} · ${fmt(s.s)} – ${fmt(s.e-1)} · ${dur}`) + styleText(s);
   const px = d => clamp(X(d) - L, 0, W);
   const bodyHtml = ps.map((p,i) => { const a = px(p.a), b = i === ps.length-1 ? W : px(p.b);
-    return `<div class="pc ${p.dash ? 'dash' : 'solid'}${i===0?' first':''}${i===ps.length-1?' last':''}" style="left:${a}px;width:${Math.max(b-a,1)}px"></div>`; }).join('');
+    return `<div class="pc ${p.dash ? 'dash' : 'solid'}${i===0?' first':''}${i===ps.length-1 && !s.open?' last':''}" style="left:${a}px;width:${Math.max(b-a,1)}px"></div>`; }).join('');
   const marks = s.m.map((d,i) => `<i class="h h-m" data-h="m" data-mi="${i}" style="left:${px(d)}px"></i>`).join('');
   return above + `<div class="seg${extra}" data-seg="${s.id}" title="${esc(title)}" style="--c:var(--c${item.c%8});left:${L}px;width:${W}px">` +
     bodyHtml +
     (inside ? `<span class="txt" style="left:${Math.max(0,-L) + (pad - 3)}px;max-width:${vis - pad*2 + 3}px">${inside}</span>` : '') +
-    `<i class="h h-l" data-h="l"></i><i class="h h-r" data-h="r"></i>` + marks + `</div>`;
+    `<i class="h h-l" data-h="l"></i>` + (s.open ? '' : `<i class="h h-r" data-h="r"></i>`) + marks + `</div>`;
 }
 
 /* Tasks of one track that are entirely off screen on one side, nearest first. */
@@ -972,7 +1009,7 @@ function rowHtml(t, r){
   all.forEach((x,i) => { const nxt = all[i+1]; h += segHtml(x.it, x.s, nxt ? X(nxt.s.s) : null); });
   const L = offscreen(its, 'l'), R = offscreen(its, 'r');
   const label = list => esc((list[0].done ? '✓ ' : '') + nm(list[0])) + (list.length > 1 ? ` <b>+${F.num(list.length - 1)}</b>` : '');
-  const tip = list => esc(list.map(it => `${nm(it)}: ${fmtM(it.segs[0].s)} – ${fmtM(it.segs.at(-1).e-1)}`).join('\n'));
+  const tip = list => esc(list.map(it => `${nm(it)}: ${spanM(it.segs[0].s, it.segs.at(-1))}`).join('\n'));
   if (L.length) h += `<button class="edge el" data-edge="l" data-r="${r}" style="--c:var(--c${L[0].c%8})" title="${tip(L)}"><i>‹</i><span>${label(L)}</span></button>`;
   if (R.length) h += `<button class="edge er" data-edge="r" data-r="${r}" style="--c:var(--c${R[0].c%8})" title="${tip(R)}"><span>${label(R)}</span><i>›</i></button>`;
   return `<div class="row" data-row="${r}">${h}</div>`;
@@ -983,13 +1020,19 @@ function linksSvg(t, rows){
   let paths = '';
   for (const l of t.links){
     const A = segById(l.a), B = segById(l.b); if (!A || !B) continue;
-    const x1 = X(A.seg.e), x2 = X(B.seg.s), y1 = A.item.row*LH + BAR_TOP + BAR_H/2, y2 = B.item.row*LH + BAR_TOP + BAR_H/2;
+    const x2 = X(B.seg.s), x1 = A.seg.open ? Math.max(X(A.seg.s) + 14, x2 - 30) : X(A.seg.e), y1 = A.item.row*LH + BAR_TOP + BAR_H/2, y2 = B.item.row*LH + BAR_TOP + BAR_H/2;
     if ((x1 < -400 && x2 < -400) || (x1 > w+400 && x2 > w+400)) continue;
-    const bad = B.seg.s < A.seg.e;
+    const bad = !A.seg.open && B.seg.s < A.seg.e;
     /* Arrows never run through a bar: a straight line only when nothing sits between the two on the same track,
        otherwise the long horizontal part travels along the thin gap between tracks. */
     const sameRow = A.item.row === B.item.row;
     const blocked = sameRow && t.items.some(it => it.row === A.item.row && it.segs.some(sg => sg !== A.seg && sg !== B.seg && sg.s < B.seg.s && sg.e > A.seg.e));
+    /* Back-to-back on one track: the order is already visible, so only a small arrowhead marks the seam. */
+    if (sameRow && !blocked && !bad && x2 - x1 < 10){
+      const xs = (x1 + x2) / 2, ys = y1 - BAR_H / 2 - 1;
+      paths += `<path class="seam" d="M${xs-4} ${ys-6} L${xs+4} ${ys-6} L${xs} ${ys}Z"></path>`;
+      continue;
+    }
     let d;
     if (sameRow && !blocked && x2 - x1 >= 10) d = `M${x1+1} ${y1} H${x2-3}`;
     else {
@@ -1016,6 +1059,7 @@ function renderBoard(){
   h += linksSvg(t, n + 1);
   rowsEl.innerHTML = h;
   board.classList.toggle('linking', !!linking);
+  renderSelbar();
   document.querySelectorAll('#zoom button').forEach(b => b.classList.toggle('on', Math.abs(+b.dataset.d - view.days) < 2));
 }
 
@@ -1092,7 +1136,7 @@ function renameTab(id){
 }
 $('tabs').addEventListener('click', e => {
   const b = e.target.closest('[data-tab]');
-  if (b){ if (data.active !== b.dataset.tab){ data.active = b.dataset.tab; linking = null; hideToast(); lsSet(LS_DATA, JSON.stringify(data)); renderTabs(); schedule(); } return; }
+  if (b){ if (data.active !== b.dataset.tab){ data.active = b.dataset.tab; linking = null; selected = new Set(); hideToast(); lsSet(LS_DATA, JSON.stringify(data)); renderTabs(); schedule(); } return; }
   const add = e.target.closest('#tabAdd');
   if (add){
     const r = add.getBoundingClientRect(), cur = tab();
@@ -1171,7 +1215,7 @@ function showLinkChip(){
   board.appendChild(toastEl);
 }
 function showTip(s, cx, cy, markDay, deps){
-  tip.textContent = (markDay != null ? T.tipStyleFrom(fmt(markDay)) : `${fmt(s.s)} → ${fmt(s.e-1)} · ${durText(s.s, s.e)}` + (s.e - s.s >= 14 ? ` (${daysText(s.e - s.s)})` : '')) + (deps ? T.withDeps(F.num(deps)) : '');
+  tip.textContent = (markDay != null ? T.tipStyleFrom(fmt(markDay)) : s.open ? `${fmt(s.s)} → · ${T.openPill}` : `${fmt(s.s)} → ${fmt(s.e-1)} · ${durText(s.s, s.e)}` + (!s.open && s.e - s.s >= 14 ? ` (${daysText(s.e - s.s)})` : '')) + (deps ? T.withDeps(F.num(deps)) : '');
   tip.hidden = false;
   const w = tip.offsetWidth;
   tip.style.left = clamp(cx - w/2, 8, innerWidth - w - 8) + 'px';
@@ -1216,8 +1260,9 @@ function splitSeg(item, seg, day, stage){
   const gap = stage ? 0 : gapLen();
   pushUndo();
   const ps = pieces(seg);
-  const second = {id:uid(), s:cut + gap, e:seg.e + gap, m:[], d:false};
-  setPieces(second, ps.filter(p => p.b > cut).map(p => ({a:Math.max(p.a, cut) + gap, b:p.b + gap, dash:p.dash})));
+  const second = {id:uid(), s:cut + gap, e:seg.open ? FAR : seg.e + gap, m:[], d:false};
+  if (seg.open){ second.open = true; delete seg.open; }
+  setPieces(second, ps.filter(p => p.b > cut).map(p => ({a:Math.max(p.a, cut) + gap, b:Math.min(p.b + gap, FAR), dash:p.dash})));
   setPieces(seg, ps.filter(p => p.a < cut).map(p => ({a:p.a, b:Math.min(p.b, cut), dash:p.dash}))); seg.e = cut; fixMarks(seg);
   tab().links.forEach(l => { if (l.a === seg.id) l.a = second.id; });
   if (!stage && seg.label) second.label = seg.label;
@@ -1229,8 +1274,8 @@ function splitSeg(item, seg, day, stage){
   if (stage){ renderBoard(); requestAnimationFrame(() => renameStage(second.id)); }
   else { schedule(); toast(T.tBreakAdded, true); }
 }
-/* Rename what you see: a period with its own name renames that period; otherwise the whole task. */
-function renameAt(item, seg){ if (seg.label) renameStage(seg.id); else renameItem(item.id, seg.id); }
+/* Rename only what you clicked: a task with several periods gets a name per period, so the others never change. */
+function renameAt(item, seg){ if (seg.label || item.segs.length > 1) renameStage(seg.id); else renameItem(item.id, seg.id); }
 /* A period can carry its own name, e.g. "Фотосесії безкоштовно" → "Фотосесії за гроші". */
 function renameStage(segId){
   const f = segById(segId); if (!f) return;
@@ -1252,6 +1297,35 @@ function detachSeg(item, seg){
   requestAnimationFrame(() => renameItem(own.id, seg.id));
 }
 function toggleDone(item){ pushUndo(); item.done = !item.done; if (!item.done) delete item.done; persist(); schedule(); }
+/* ---------- several periods selected at once (Ctrl/⌘ + click) ---------- */
+let selected = new Set();
+function selectedSegs(){ return [...selected].map(segById).filter(Boolean); }
+function toggleSelect(segId){ if (selected.has(segId)) selected.delete(segId); else selected.add(segId); schedule(); }
+function clearSelection(){ if (selected.size){ selected = new Set(); schedule(); } }
+const monthDelta = (base, k) => { const {y, m, d} = dd(base); return dn(y, m + k, d) - base; };
+function shiftSelected(k){
+  const list = selectedSegs(); if (!list.length) return;
+  const delta = monthDelta(Math.min(...list.map(f => f.seg.s)), k);
+  pushUndo();
+  const ids = list.map(f => f.seg.id);
+  list.forEach(f => shiftSeg(f.seg, copySeg(f.seg), delta));
+  const deps = followers(ids).filter(f => !selected.has(f.seg.id));
+  deps.forEach(f => shiftSeg(f.seg, copySeg(f.seg), delta));
+  const items = [...new Set([...list, ...deps].map(f => f.item))];
+  items.forEach(it => it.segs.sort((a,b) => a.s - b.s));
+  settle(...items); persist(); schedule();
+}
+function doneSelected(){ pushUndo(); [...new Set(selectedSegs().map(f => f.item))].forEach(it => it.done = true); persist(); schedule(); }
+function renderSelbar(){
+  const bar = $('selbar'); const n = selectedSegs().length;
+  if (!n){ bar.hidden = true; return; }
+  bar.hidden = false;
+  bar.innerHTML = `<span>${esc(T.selCount(F.num(n)))}</span><button data-sel="-1">${esc(T.selEarlier)}</button><button data-sel="1">${esc(T.selLater)}</button><button data-sel="x" aria-label="${esc(T.selClear)}" title="${esc(T.selClear)}">✕</button>`;
+}
+$('selbar').addEventListener('click', e => {
+  const b = e.target.closest('[data-sel]'); if (!b) return;
+  if (b.dataset.sel === 'x') clearSelection(); else shiftSelected(+b.dataset.sel);
+});
 function ensureVisible(s){ if (X(s.e) < 0 || X(s.s) > trackW()) view.start = s.s - view.days * 0.15; }
 function jumpTo(item, dir){
   if (dir === 'l') view.start = item.segs.at(-1).e - view.days * 0.75;
@@ -1271,16 +1345,19 @@ let pieceSeq = 0;
 function openDates(item, seg){
   dlgTarget = {item, seg};
   $('dlgName').textContent = nm(item);
-  fStart.value = iso(seg.s); fEnd.value = iso(seg.e - 1);
+  fStart.value = iso(seg.s); fEnd.value = seg.open ? '' : iso(seg.e - 1); syncEndNote();
   pieceSeq = 0; fPieces.innerHTML = pieces(seg).map(p => pieceRow(pieceSeq++, p.a, p.dash)).join('');
   fErr.hidden = true; modal.hidden = false; fStart.focus();
 }
 function closeDates(){ modal.hidden = true; dlgTarget = null; }
+function syncEndNote(){ const empty = !fEnd.value; $('fEndNote').hidden = !empty; $('fEndClear').hidden = empty; }
+fEnd.addEventListener('input', syncEndNote); fEnd.addEventListener('change', syncEndNote);
+$('fEndClear').onclick = () => { fEnd.value = ''; syncEndNote(); };
 $('fCancel').onclick = closeDates;
 modal.addEventListener('pointerdown', e => { if (e.target === modal) closeDates(); });
 fPieces.addEventListener('click', e => { const b = e.target.closest('.rm'); if (b) b.closest('.pr').remove(); });
 $('fAddPiece').onclick = () => {
-  const rows = [...fPieces.querySelectorAll('.pr')], s = fromIso(fStart.value) ?? dlgTarget.seg.s, e = (fromIso(fEnd.value) ?? dlgTarget.seg.e - 1) + 1;
+  const rows = [...fPieces.querySelectorAll('.pr')], s = fromIso(fStart.value) ?? dlgTarget.seg.s, e = fEnd.value ? (fromIso(fEnd.value) ?? s) + 1 : Math.max(s + 365, TODAY + 365);
   const lastRow = rows[rows.length-1], lastAt = rows.length > 1 ? (fromIso(lastRow.querySelector('input').value) ?? s) : s;
   const lastDash = lastRow.querySelector('select').value === '1';
   const at = Math.max(lastAt + 1, Math.round((lastAt + e) / 2));
@@ -1294,17 +1371,17 @@ function readPieces(s, e){
 }
 $('datesForm').addEventListener('submit', e => {
   e.preventDefault(); if (!dlgTarget) return;
-  const s = fromIso(fStart.value), last = fromIso(fEnd.value);
+  const s = fromIso(fStart.value), open = !fEnd.value, last = open ? FAR - 1 : fromIso(fEnd.value);
   const err = m => { fErr.textContent = m; fErr.hidden = false; };
   if (s === null || last === null) return err(T.errDates);
   if (last < s) return err(T.errOrder);
   const list = readPieces(s, last + 1);
   if (!list) return err(T.errStyle);
   pushUndo();
-  const {seg, item} = dlgTarget, oldE = seg.e;
-  seg.s = s; seg.e = last + 1; setPieces(seg, list); fixMarks(seg);
+  const {seg, item} = dlgTarget, oldE = seg.e, wasOpen = !!seg.open;
+  seg.s = s; seg.e = last + 1; setPieces(seg, list); if (open) seg.open = true; else delete seg.open; fixMarks(seg);
   item.segs.sort((a,b) => a.s - b.s);
-  const moved = shiftFollowers([seg.id], seg.e - oldE);
+  const moved = open || wasOpen ? [] : shiftFollowers([seg.id], seg.e - oldE);
   settle(item, ...moved);
   closeDates(); ensureVisible(seg); persist(); schedule();
 });
@@ -1359,9 +1436,12 @@ function segMenu(info, cx, cy){
 
   const dates = [{label:T.mDates, run:() => openDates(item, seg)}];
   if (inside) dates.push({label:T.mNewStage(fmt(dayR)), run:() => splitSeg(item, seg, day, true)}, {label:T.mBreak(fmt(dayR)), run:() => splitSeg(item, seg, day)});
-  dates.push({label:T.mAddPeriod, run:() => addPeriod(item)});
+  if (!item.segs.some(x => x.open)) dates.push({label:T.mAddPeriod, run:() => addPeriod(item)});
+  dates.push(seg.open
+    ? {label:T.mSetEnd, run:() => { pushUndo(); closeEnd(seg, Math.max(seg.s + 30, Math.round(view.start + view.days * 0.75))); settle(item); persist(); schedule(); }}
+    : {label:T.mNoEnd, run:() => { pushUndo(); openEnd(seg); settle(item); persist(); schedule(); }});
 
-  const line = [{label:T.mExtDash, run:extend(true)}, {label:T.mExtSolid, run:extend(false)}];
+  const line = seg.open ? [] : [{label:T.mExtDash, run:extend(true)}, {label:T.mExtSolid, run:extend(false)}];
   if (dayR > piece.a && dayR < piece.b)
     line.push({label:piece.dash ? T.mSolidFrom(fmt(dayR)) : T.mDashFrom(fmt(dayR)), run:restyle(list => { const p = list[pi]; list.splice(pi, 1, {a:p.a, b:dayR, dash:p.dash}, {a:dayR, b:p.b, dash:!p.dash}); })});
   if (ps.length > 1) line.push({label:piece.dash ? T.mPieceSolid : T.mPieceDash, run:restyle(list => { list[pi].dash = !list[pi].dash; })});
@@ -1371,18 +1451,20 @@ function segMenu(info, cx, cy){
   const links = [{label:T.mLink, run:() => { linking = seg.id; showLinkChip(); schedule(); }}];
   if (t.links.some(l => l.a === seg.id || l.b === seg.id)) links.push({label:T.mUnlink, run:() => { pushUndo(); t.links = t.links.filter(l => l.a !== seg.id && l.b !== seg.id); persist(); schedule(); }});
 
-  const task = [{label:item.done ? T.mUndone : T.mDone, run:() => toggleDone(item)}, {label:T.mRename, run:() => renameAt(item, seg)}];
-  if (item.segs.length > 1 && !seg.label) task.push({label:T.mStageAdd, run:() => renameStage(seg.id)});
+  const task = [{label:item.done ? T.mUndone : T.mDone, run:() => toggleDone(item)}, {label:T.mRename, run:() => renameAt(item, seg)}, {label:selected.has(seg.id) ? T.mUnselect : T.mSelect, run:() => toggleSelect(seg.id)}];
   if (seg.label) task.push({label:T.mStageClear, run:() => { pushUndo(); delete seg.label; persist(); schedule(); }});
   if (item.segs.length > 1) task.push({label:T.mDetach, run:() => detachSeg(item, seg)});
   const danger = [];
   if (item.segs.length > 1) danger.push({label:T.mDelPeriod, danger:true, run:() => deleteSeg(item, seg)});
   danger.push({label:T.mDelTask, danger:true, run:() => deleteItem(item)});
 
+  const sel = selected.has(seg.id) && selected.size > 1 ? [{head:T.selCount(F.num(selectedSegs().length)), items:[
+    {label:T.selLaterLong, run:() => shiftSelected(1)}, {label:T.selEarlierLong, run:() => shiftSelected(-1)},
+    {label:T.selDone, run:doneSelected}, {label:T.selClear, run:clearSelection}]}] : [];
   openGroupedMenu([
-    [{head:T.secDates, items:dates}, {head:T.secLine, items:line}],
+    [...sel, {head:T.secDates, items:dates}, {head:T.secLine, items:line}],
     [{head:T.secTask, items:task}, {head:T.secLinks, items:links}, {items:danger}],
-  ], cx, cy, `${seg.label || nm(item)} · ${fmtM(seg.s)} – ${fmtM(seg.e-1)}`);
+  ], cx, cy, `${seg.label || nm(item)} · ${spanM(seg.s, seg)}`);
 }
 /* Two columns of titled groups on wide screens, one column on phones. */
 function openGroupedMenu(columns, cx, cy, heading){
@@ -1429,7 +1511,7 @@ board.addEventListener('pointerdown', e => {
   if (pointers.size > 2) return;
   closeEditor(true);
   const info = hit(e);
-  ptr = {id:e.pointerId, x0:e.clientX, y0:e.clientY, info, mode:null, touch:e.pointerType !== 'mouse', shift:e.shiftKey, alone:e.altKey};
+  ptr = {id:e.pointerId, x0:e.clientX, y0:e.clientY, info, mode:null, touch:e.pointerType !== 'mouse', shift:e.shiftKey, alone:e.altKey, multi:e.ctrlKey || e.metaKey};
   try { board.setPointerCapture(e.pointerId); } catch {}
   if (ptr.touch) ptr.lp = setTimeout(() => { if (ptr && !ptr.mode){ ptr.cancelled = true; contextFor(info, ptr.x0, ptr.y0); } }, 520);
 });
@@ -1455,6 +1537,14 @@ function beginDrag(dx, dy){
     ptr.o = copySeg(f.seg); ptr.os = f.item.segs.map(copySeg);
     ptr.row0 = f.item.row; ptr.maxRow = rowCount(tab()); ptr.vlock = Math.abs(dy) > Math.abs(dx) * 1.5;
     ptr.deps = [];
+    if (ptr.mode === 'move' && selected.has(f.seg.id) && selected.size > 1){
+      ptr.group = selectedSegs().map(g => ({f:g, o:copySeg(g.seg)}));
+      const ids = ptr.group.map(g => g.f.seg.id);
+      if (!ptr.alone) ptr.deps = followers(ids).filter(x => !selected.has(x.seg.id)).map(x => ({f:x, o:copySeg(x.seg)}));
+      followIds = new Set(ptr.deps.map(x => x.f.seg.id));
+      pushUndo(); board.style.cursor = 'grabbing'; return;
+    }
+    if (ptr.mode === 'move' && !selected.has(f.seg.id)) clearSelection();
     if (!ptr.alone && (ptr.mode === 'move' || ptr.mode === 'r')){
       const own = ptr.mode === 'move' && ptr.shift ? f.item.segs.map(s => s.id) : [f.seg.id];
       ptr.deps = followers(own).filter(x => !own.includes(x.seg.id)).map(x => ({f:x, o:copySeg(x.seg)}));
@@ -1475,6 +1565,13 @@ function applyDrag(e, dx, dy){
   }
   const s = ptr.seg, o = ptr.o;
   let delta = 0;
+  if (m === 'move' && ptr.group){
+    ptr.group.forEach(g => shiftSeg(g.f.seg, g.o, dDays));
+    ptr.deps.forEach(x => shiftSeg(x.f.seg, x.o, dDays));
+    tip.textContent = `${fmt(s.s)} → ${s.open ? '' : fmt(s.e-1)} · ${T.selCount(F.num(ptr.group.length))}` + (ptr.deps.length && dDays ? T.withDeps(F.num(ptr.deps.length)) : '');
+    tip.hidden = false; tip.style.left = clamp(e.clientX - tip.offsetWidth/2, 8, innerWidth - tip.offsetWidth - 8) + 'px'; tip.style.top = Math.max(8, e.clientY - 44) + 'px';
+    schedule(); return;
+  }
   if (m === 'move'){
     const rect = scroller.getBoundingClientRect();
     if (e.clientY < rect.top + 20) scroller.scrollTop -= 8; else if (e.clientY > rect.bottom - 20) scroller.scrollTop += 8;
@@ -1504,6 +1601,11 @@ function endPtr(isUp, e){
   if (p.cancelled) return;
   if (p.mode){
     if (p.mode === 'pan'){ savePrefs(); return; }
+    if (p.group){
+      if (p.group.every(g => g.f.seg.s === g.o.s)) undoStack.pop();
+      else { const items = [...new Set([...p.group.map(g => g.f.item), ...p.deps.map(x => x.f.item)])]; items.forEach(it => it.segs.sort((a,b) => a.s - b.s)); settle(...items); persist(); }
+      schedule(); return;
+    }
     const same = p.item.row === p.row0 && p.item.segs.every((x,i) => x.s === p.os[i].s && x.e === p.os[i].e && x.d === p.os[i].d && x.m.join() === p.os[i].m.join());
     if (same) undoStack.pop();
     else { p.item.segs.sort((a,b) => a.s - b.s); settle(p.item, ...(p.deps || []).map(x => x.f.item)); persist(); }
@@ -1523,6 +1625,8 @@ function tap(p, e){
   const key = i.kind + ':' + (i.segId ?? i.row ?? '');
   const isDouble = lastTap && now - lastTap.t < 380 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 14 && lastTap.key === key;
   lastTap = isDouble ? null : {t:now, x:e.clientX, y:e.clientY, key};
+  if (p.multi && (i.kind === 'seg' || i.kind === 'check') && !linking){ lastTap = null; toggleSelect(i.segId); return; }
+  if (selected.size && !(i.kind === 'seg' && selected.has(i.segId))) clearSelection();
   if (i.kind === 'check' && !linking){ lastTap = null; const f = segById(i.segId); if (f) toggleDone(f.item); return; }
   if (linking){
     if ((i.kind === 'seg' || i.kind === 'check') && i.segId !== linking){
@@ -1540,7 +1644,10 @@ board.addEventListener('contextmenu', e => {
   if (e.target.closest('input, .chip, button')) return;
   e.preventDefault();
   if (ptr){ ptr.cancelled = true; clearTimeout(ptr.lp); }
-  contextFor(hit(e), e.clientX, e.clientY);
+  const info = hit(e);
+  /* on a Mac, Ctrl + click arrives as a right-click: treat it as "select" there */
+  if (e.ctrlKey && e.button === 0 && (info.kind === 'seg' || info.kind === 'check')){ toggleSelect(info.segId); return; }
+  contextFor(info, e.clientX, e.clientY);
 });
 let wheelSave = 0;
 board.addEventListener('wheel', e => {
@@ -1560,7 +1667,7 @@ rowsEl.addEventListener('click', e => {
   const dir = j.dataset.edge, list = offscreen(tab().items.filter(i => i.row === +j.dataset.r), dir);
   if (list.length === 1) return jumpTo(list[0], dir);
   const rc = j.getBoundingClientRect();
-  openMenu(list.map(it => ({label:`${it.done ? '✓ ' : ''}${nm(it)} · ${fmtM(it.segs[0].s)} – ${fmtM(it.segs.at(-1).e-1)}`, run:() => jumpTo(it, dir)})),
+  openMenu(list.map(it => ({label:`${it.done ? '✓ ' : ''}${nm(it)} · ${spanM(it.segs[0].s, it.segs.at(-1))}`, run:() => jumpTo(it, dir)})),
     dir === 'l' ? rc.left : rc.right - 280, rc.bottom + 4);
 });
 
@@ -1580,7 +1687,7 @@ $('helpBtn').onclick = () => {
 const mq = matchMedia('(prefers-color-scheme: dark)'); mq.addEventListener && mq.addEventListener('change', () => { syncThemeUI(); schedule(); });
 document.addEventListener('keydown', e => {
   if (e.target && e.target.closest && e.target.closest('input, select')) return;
-  if (e.key === 'Escape'){ closeMenu(); help.hidden = true; if (!modal.hidden) closeDates(); if (linking){ linking = null; hideToast(); schedule(); } }
+  if (e.key === 'Escape'){ closeMenu(); help.hidden = true; clearSelection(); if (!modal.hidden) closeDates(); if (linking){ linking = null; hideToast(); schedule(); } }
   if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'z'){ e.preventDefault(); undo(); }
 });
 new ResizeObserver(() => schedule()).observe(body);
